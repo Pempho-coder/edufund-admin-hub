@@ -10,12 +10,12 @@ import { RecentApplicationsTable } from "@/components/admin/RecentApplicationsTa
 import { AdminRightPanel } from "@/components/admin/AdminRightPanel";
 
 const stats = [
-  { title: "Total Students", value: "1,247", subtitle: "Registered on platform", icon: Users, iconBg: "bg-edu-green-light", iconColor: "text-primary" },
-  { title: "Total Opportunities", value: "18", subtitle: "Currently active", icon: TrendingUp, iconBg: "bg-edu-blue-light", iconColor: "text-edu-blue" },
-  { title: "Total Applications", value: "124", subtitle: "All time submissions", icon: FileText, iconBg: "bg-edu-amber-light", iconColor: "text-edu-amber" },
-  { title: "Pending Applications", value: "43", subtitle: "Awaiting review", icon: Clock, iconBg: "bg-edu-yellow-light", iconColor: "text-edu-yellow" },
-  { title: "Approved", value: "67", subtitle: "Successfully approved", icon: CheckCircle, iconBg: "bg-edu-green-light", iconColor: "text-primary" },
-  { title: "Rejected", value: "14", subtitle: "Not eligible", icon: XCircle, iconBg: "bg-edu-red-light", iconColor: "text-edu-red" },
+  { title: "Total Students", value: "1,247", subtitle: "Registered on platform", icon: Users, iconBg: "bg-edu-green-light", iconColor: "text-primary", trend: { value: "8.2%", up: true } },
+  { title: "Opportunities", value: "18", subtitle: "Currently active", icon: TrendingUp, iconBg: "bg-edu-blue-light", iconColor: "text-edu-blue", trend: { value: "3 new", up: true } },
+  { title: "Applications", value: "124", subtitle: "All time", icon: FileText, iconBg: "bg-edu-amber-light", iconColor: "text-edu-amber", trend: { value: "12.5%", up: true } },
+  { title: "Pending", value: "43", subtitle: "Awaiting review", icon: Clock, iconBg: "bg-edu-yellow-light", iconColor: "text-edu-yellow", trend: { value: "5 today", up: true } },
+  { title: "Approved", value: "67", subtitle: "Successfully", icon: CheckCircle, iconBg: "bg-edu-green-light", iconColor: "text-primary", trend: { value: "54%", up: true } },
+  { title: "Rejected", value: "14", subtitle: "Not eligible", icon: XCircle, iconBg: "bg-edu-red-light", iconColor: "text-edu-red", trend: { value: "2.1%", up: false } },
 ];
 
 const Index = () => {
@@ -26,13 +26,13 @@ const Index = () => {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-foreground/20 z-40 lg:hidden"
+          className="fixed inset-0 bg-foreground/30 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
           onClick={() => setMobileOpen(false)}
         />
       )}
       {/* Mobile sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 lg:hidden transform transition-transform duration-300 ${
+        className={`fixed inset-y-0 left-0 z-50 lg:hidden transform transition-transform duration-300 ease-out ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -40,7 +40,7 @@ const Index = () => {
       </div>
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:block">
+      <div className="hidden lg:block shrink-0">
         <AdminSidebar />
       </div>
 
@@ -50,12 +50,12 @@ const Index = () => {
 
         <div className="flex-1 flex overflow-auto">
           {/* Center content */}
-          <main className="flex-1 p-4 lg:p-6 space-y-4 overflow-auto">
+          <main className="flex-1 p-4 lg:p-6 space-y-5 overflow-auto">
             <WelcomeCard />
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
               {stats.map((s, i) => (
-                <StatCard key={s.title} {...s} delay={i * 80} />
+                <StatCard key={s.title} {...s} delay={100 + i * 60} />
               ))}
             </div>
 
@@ -65,7 +65,7 @@ const Index = () => {
           </main>
 
           {/* Right panel */}
-          <div className="hidden xl:block p-4 lg:pr-6 lg:pl-0 lg:py-6">
+          <div className="hidden xl:block py-6 pr-6">
             <AdminRightPanel />
           </div>
         </div>
