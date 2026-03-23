@@ -91,11 +91,16 @@ export default {
           from: { opacity: "0", transform: "translateY(16px)", filter: "blur(4px)" },
           to: { opacity: "1", transform: "translateY(0)", filter: "blur(0)" },
         },
+        "fade-in": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in-up": "fade-in-up 0.6s cubic-bezier(0.16,1,0.3,1) both",
+        "fade-in": "fade-in 0.3s ease-out both",
       },
     },
   },
