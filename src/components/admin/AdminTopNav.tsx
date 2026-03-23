@@ -1,4 +1,4 @@
-import { Search, Bell, ChevronDown, Menu } from "lucide-react";
+import { Search, Bell, ChevronDown, Menu, Sun } from "lucide-react";
 
 interface AdminTopNavProps {
   onMenuToggle?: () => void;
@@ -6,44 +6,50 @@ interface AdminTopNavProps {
 
 export function AdminTopNav({ onMenuToggle }: AdminTopNavProps) {
   return (
-    <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 lg:px-8 shrink-0">
+    <header className="h-16 bg-card/80 backdrop-blur-xl border-b border-border flex items-center justify-between px-4 lg:px-6 shrink-0 sticky top-0 z-30">
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuToggle}
-          className="lg:hidden p-2 rounded-lg hover:bg-accent transition-colors"
+          className="lg:hidden p-2 rounded-xl hover:bg-accent transition-all active:scale-95"
         >
           <Menu className="w-5 h-5 text-muted-foreground" />
         </button>
         <div className="relative hidden sm:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search opportunities, students..."
-            className="w-[320px] lg:w-[420px] h-10 pl-10 pr-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 transition-shadow"
+            className="w-[280px] lg:w-[380px] h-10 pl-10 pr-4 rounded-xl border border-border bg-background/60 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
           />
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <button className="relative p-2 rounded-lg hover:bg-accent transition-colors">
-          <Bell className="w-5 h-5 text-muted-foreground" />
-          <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-edu-red text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+      <div className="flex items-center gap-2">
+        <button className="p-2.5 rounded-xl hover:bg-accent transition-all active:scale-95">
+          <Sun className="w-[18px] h-[18px] text-muted-foreground" />
+        </button>
+
+        <button className="relative p-2.5 rounded-xl hover:bg-accent transition-all active:scale-95">
+          <Bell className="w-[18px] h-[18px] text-muted-foreground" />
+          <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-edu-red text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-card">
             5
           </span>
         </button>
 
-        <div className="flex items-center gap-3 cursor-pointer group">
-          <div className="w-9 h-9 rounded-full bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center">
+        <div className="w-px h-8 bg-border mx-1" />
+
+        <button className="flex items-center gap-2.5 p-1.5 pr-3 rounded-xl hover:bg-accent transition-all active:scale-[0.98] group">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-emerald-600 text-white text-xs font-bold flex items-center justify-center shadow-sm">
             AD
           </div>
-          <div className="hidden md:block">
-            <p className="text-sm font-medium text-foreground leading-tight">
-              Admin User
+          <div className="hidden md:block text-left">
+            <p className="text-[13px] font-semibold text-foreground leading-tight">
+              Admin
             </p>
-            <p className="text-xs text-muted-foreground">admin@mzuni.ac.mw</p>
+            <p className="text-[11px] text-muted-foreground leading-tight">admin@mzuni.ac.mw</p>
           </div>
-          <ChevronDown className="w-4 h-4 text-muted-foreground hidden md:block group-hover:text-foreground transition-colors" />
-        </div>
+          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground hidden md:block group-hover:text-foreground transition-colors" />
+        </button>
       </div>
     </header>
   );
