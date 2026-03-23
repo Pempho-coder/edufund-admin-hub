@@ -59,7 +59,7 @@ export function OpportunityFormModal({ open, onOpenChange, opportunity, onSave }
       setForm({
         title: opportunity.title,
         organization: opportunity.organization,
-        category: opportunity.category,
+        category: opportunity.category as typeof emptyForm.category,
         fundingType: opportunity.fundingType,
         amount: opportunity.amount,
         deadline: opportunity.deadline,
@@ -67,7 +67,7 @@ export function OpportunityFormModal({ open, onOpenChange, opportunity, onSave }
         eligibility: opportunity.eligibility,
         requiredDocuments: opportunity.requiredDocuments,
         applicationInstructions: opportunity.applicationInstructions,
-        status: opportunity.status,
+        status: opportunity.status as typeof emptyForm.status,
         featured: opportunity.featured,
       });
       setDeadlineDate(new Date(opportunity.deadline));
