@@ -50,7 +50,7 @@ const emptyForm = {
 
 export function OpportunityFormModal({ open, onOpenChange, opportunity, onSave }: OpportunityFormModalProps) {
   const isEdit = !!opportunity;
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState<typeof emptyForm>(emptyForm);
   const [deadlineDate, setDeadlineDate] = useState<Date | undefined>();
   const [publishImmediately, setPublishImmediately] = useState(false);
 
