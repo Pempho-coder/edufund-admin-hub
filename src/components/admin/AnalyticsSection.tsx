@@ -6,22 +6,12 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
   PieChart,
   Pie,
   Cell,
   Area,
   AreaChart,
 } from "recharts";
-
-const barData = [
-  { name: "Merit", apps: 24 },
-  { name: "STEM", apps: 18 },
-  { name: "Need-Based", apps: 31 },
-  { name: "Research", apps: 12 },
-  { name: "Sports", apps: 9 },
-];
 
 const lineData = [
   { month: "Jan", apps: 12 },
@@ -32,10 +22,18 @@ const lineData = [
   { month: "Jun", apps: 38 },
 ];
 
+const barData = [
+  { name: "Merit", apps: 24 },
+  { name: "STEM", apps: 18 },
+  { name: "Need-Based", apps: 31 },
+  { name: "Research", apps: 12 },
+  { name: "Sports", apps: 9 },
+];
+
 const pieData = [
-  { name: "Pending", value: 43, color: "hsl(38,92%,50%)" },
-  { name: "Approved", value: 67, color: "hsl(152,69%,31%)" },
-  { name: "Rejected", value: 14, color: "hsl(0,72%,51%)" },
+  { name: "Submitted", value: 48, color: "hsl(213,72%,55%)" },
+  { name: "Under Review", value: 43, color: "hsl(38,92%,50%)" },
+  { name: "Forwarded", value: 33, color: "hsl(152,69%,31%)" },
 ];
 
 const tooltipStyle = {
@@ -73,7 +71,7 @@ export function AnalyticsSection() {
             <h4 className="text-[13px] font-semibold text-foreground">Applications Over Time</h4>
             <span className="text-[11px] font-semibold text-primary bg-edu-green-light px-2 py-0.5 rounded-full">+12.5%</span>
           </div>
-          <p className="text-[11px] text-muted-foreground mb-4">Monthly trend</p>
+          <p className="text-[11px] text-muted-foreground mb-4">Monthly submissions trend</p>
           <ResponsiveContainer width="100%" height={180}>
             <AreaChart data={lineData}>
               <defs>
@@ -112,7 +110,7 @@ export function AnalyticsSection() {
         {/* Donut Chart */}
         <div className="bg-card rounded-xl border border-border p-5 animate-fade-in-up" style={{ animationDelay: "400ms" }}>
           <div className="flex items-center justify-between mb-1">
-            <h4 className="text-[13px] font-semibold text-foreground">Status Breakdown</h4>
+            <h4 className="text-[13px] font-semibold text-foreground">Submission Status</h4>
           </div>
           <p className="text-[11px] text-muted-foreground mb-3">Current distribution</p>
           <div className="flex items-center gap-6">
