@@ -3,10 +3,10 @@ import {
   Users,
   BarChart3,
   Plus,
-  CheckCircle,
-  XCircle,
+  Send,
+  Clock,
+  FileCheck,
   FileText,
-  ArrowRight,
 } from "lucide-react";
 
 const activities = [
@@ -15,7 +15,7 @@ const activities = [
     title: "New application submitted",
     desc: "Grace Banda — Merit Scholarship",
     time: "2 min ago",
-    badge: "new",
+    badge: "submitted",
     badgeColor: "bg-edu-blue-light text-edu-blue",
     iconBg: "bg-edu-blue-light",
     iconColor: "text-edu-blue",
@@ -31,24 +31,24 @@ const activities = [
     iconColor: "text-primary",
   },
   {
-    icon: CheckCircle,
-    title: "Application approved",
+    icon: Clock,
+    title: "Application under review",
     desc: "Joseph Mwale — STEM Grant",
     time: "3 hours ago",
-    badge: "approved",
+    badge: "reviewing",
+    badgeColor: "bg-edu-amber-light text-edu-amber",
+    iconBg: "bg-edu-amber-light",
+    iconColor: "text-edu-amber",
+  },
+  {
+    icon: Send,
+    title: "Application forwarded",
+    desc: "Blessings Kamanga — Sports Bursary",
+    time: "5 hours ago",
+    badge: "forwarded",
     badgeColor: "bg-edu-green-light text-primary",
     iconBg: "bg-edu-green-light",
     iconColor: "text-primary",
-  },
-  {
-    icon: XCircle,
-    title: "Application rejected",
-    desc: "Chimwemwe Phiri — Need-Based Aid",
-    time: "5 hours ago",
-    badge: "rejected",
-    badgeColor: "bg-edu-red-light text-edu-red",
-    iconBg: "bg-edu-red-light",
-    iconColor: "text-edu-red",
   },
 ];
 
@@ -90,7 +90,6 @@ const quickActions = [
 export function AdminRightPanel() {
   return (
     <aside className="hidden xl:block w-[300px] shrink-0 space-y-4 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
-      {/* Recent Activity */}
       <div className="bg-card rounded-xl border border-border p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-[13px] font-semibold text-foreground">Recent Activity</h3>
@@ -117,7 +116,6 @@ export function AdminRightPanel() {
         </div>
       </div>
 
-      {/* Quick Actions */}
       <div className="bg-card rounded-xl border border-border p-5">
         <h3 className="text-[13px] font-semibold text-foreground mb-4">Quick Actions</h3>
         <div className="grid grid-cols-2 gap-2.5">

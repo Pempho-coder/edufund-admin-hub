@@ -1,22 +1,23 @@
-import { MoreHorizontal, Eye, CheckCircle, XCircle } from "lucide-react";
+import { MoreHorizontal, Eye, Send, Clock, FileCheck } from "lucide-react";
 
 const applications = [
-  { name: "Grace Banda", initials: "GB", opportunity: "Merit Scholarship", status: "Pending", date: "Mar 21, 2026", color: "bg-emerald-100 text-primary" },
-  { name: "Joseph Mwale", initials: "JM", opportunity: "STEM Grant", status: "Approved", date: "Mar 20, 2026", color: "bg-blue-100 text-edu-blue" },
-  { name: "Chimwemwe Phiri", initials: "CP", opportunity: "Need-Based Aid", status: "Rejected", date: "Mar 19, 2026", color: "bg-amber-100 text-edu-amber" },
-  { name: "Tadala Nyirenda", initials: "TN", opportunity: "Research Fund", status: "Pending", date: "Mar 18, 2026", color: "bg-rose-100 text-edu-red" },
-  { name: "Blessings Kamanga", initials: "BK", opportunity: "Sports Bursary", status: "Approved", date: "Mar 17, 2026", color: "bg-violet-100 text-violet-600" },
+  { name: "Grace Banda", initials: "GB", opportunity: "Merit Scholarship", status: "Submitted", date: "Mar 21, 2026", color: "bg-emerald-100 text-primary" },
+  { name: "Joseph Mwale", initials: "JM", opportunity: "STEM Grant", status: "Under Review", date: "Mar 20, 2026", color: "bg-blue-100 text-edu-blue" },
+  { name: "Chimwemwe Phiri", initials: "CP", opportunity: "Need-Based Aid", status: "Forwarded", date: "Mar 19, 2026", color: "bg-amber-100 text-edu-amber" },
+  { name: "Tadala Nyirenda", initials: "TN", opportunity: "Research Fund", status: "Submitted", date: "Mar 18, 2026", color: "bg-rose-100 text-edu-red" },
+  { name: "Blessings Kamanga", initials: "BK", opportunity: "Sports Bursary", status: "Under Review", date: "Mar 17, 2026", color: "bg-violet-100 text-violet-600" },
 ];
 
 const statusStyles: Record<string, string> = {
-  Pending: "bg-edu-amber-light text-edu-amber",
-  Approved: "bg-edu-green-light text-primary",
-  Rejected: "bg-edu-red-light text-edu-red",
+  Submitted: "bg-edu-blue-light text-edu-blue",
+  "Under Review": "bg-edu-amber-light text-edu-amber",
+  Forwarded: "bg-edu-green-light text-primary",
 };
 
-const statusIcons: Record<string, typeof CheckCircle> = {
-  Approved: CheckCircle,
-  Rejected: XCircle,
+const statusIcons: Record<string, typeof Eye> = {
+  Submitted: FileCheck,
+  "Under Review": Clock,
+  Forwarded: Send,
 };
 
 export function RecentApplicationsTable() {
