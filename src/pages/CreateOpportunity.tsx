@@ -526,10 +526,17 @@ const CreateOpportunity = () => {
               {/* ── Section 2: Academic Eligibility ────────────────────────── */}
               <SectionCard icon={GraduationCap} title="Academic Eligibility" description="Define which students qualify based on their academic profile." badge="Matching">
                 <div className="space-y-5">
-                  {/* Faculties */}
+                   {/* Faculties */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-semibold">Eligible Faculties</Label>
-                    <p className="text-[11px] text-muted-foreground -mt-1">Leave empty to allow all faculties.</p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label className="text-xs font-semibold">Eligible Faculties</Label>
+                        <p className="text-[11px] text-muted-foreground">Leave empty to allow all faculties.</p>
+                      </div>
+                      <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={handleSelectAllFaculties}>
+                        {data.eligible_faculties.length === FACULTY_NAMES.length ? "Deselect All" : "Select All"}
+                      </Button>
+                    </div>
                     <CheckboxGroup
                       items={FACULTY_NAMES}
                       selected={data.eligible_faculties}
