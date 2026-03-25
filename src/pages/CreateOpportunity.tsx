@@ -152,18 +152,6 @@ const TAGS = [
   "Financial Need",
 ];
 
-const REQUIRED_DOCS = [
-  "National ID",
-  "Student ID",
-  "MSCE Certificate",
-  "Admission Letter",
-  "Semester Results",
-  "Recommendation Letter",
-  "Personal Statement",
-  "Fee Statement",
-  "CV",
-];
-
 const APP_METHODS = [
   "Internal Application",
   "External Link",
