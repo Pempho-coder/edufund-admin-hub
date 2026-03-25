@@ -168,12 +168,6 @@ const STATUS_OPTIONS = [
   { value: "restricted", label: "Restricted" },
 ];
 
-const VERIFICATION_OPTIONS = [
-  { value: "draft", label: "Draft" },
-  { value: "needs_verification", label: "Needs Verification" },
-  { value: "verified", label: "Verified" },
-];
-
 // ─── Type ────────────────────────────────────────────────────────────────────
 
 type OpportunityForm = {
