@@ -572,22 +572,6 @@ const CreateOpportunity = () => {
                   <Separator />
 
                   <div className="grid sm:grid-cols-2 gap-4">
-                    {/* Years */}
-                    <div className="space-y-2">
-                      <Label className="text-xs font-semibold">Eligible Years of Study</Label>
-                      <p className="text-[11px] text-muted-foreground -mt-1">Leave empty to allow all years.</p>
-                      <CheckboxGroup items={YEARS} selected={data.eligible_years} onToggle={(v) => toggleArrayValue("eligible_years", v)} columns={3} />
-                    </div>
-
-                    {/* Semesters */}
-                    <div className="space-y-2">
-                      <Label className="text-xs font-semibold">Eligible Semesters</Label>
-                      <p className="text-[11px] text-muted-foreground -mt-1">Leave empty to allow both.</p>
-                      <CheckboxGroup items={SEMESTERS} selected={data.eligible_semesters} onToggle={(v) => toggleArrayValue("eligible_semesters", v)} columns={2} />
-                    </div>
-                  </div>
-
-                  <div className="grid sm:grid-cols-2 gap-4">
                     {/* Levels */}
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold">Eligible Levels of Study</Label>
