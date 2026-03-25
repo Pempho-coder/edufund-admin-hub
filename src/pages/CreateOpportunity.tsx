@@ -728,15 +728,7 @@ const CreateOpportunity = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold">Verification Status</Label>
-                      <Select value={data.verification_status} onValueChange={(v) => setData("verification_status", v)}>
-                        <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {VERIFICATION_OPTIONS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  </div>
                   </div>
 
                   <div className="flex items-start gap-3">
