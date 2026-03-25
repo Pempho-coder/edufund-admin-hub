@@ -271,16 +271,18 @@ const CreateOpportunity = () => {
     }));
   };
 
-  const addRequirement = () => {
-    const trimmed = requirementInput.trim();
-    if (trimmed && !data.requirements.includes(trimmed)) {
-      setData("requirements", [...data.requirements, trimmed]);
-      setRequirementInput("");
-    }
+  const handleSelectAllFaculties = () => {
+    const allSelected = data.eligible_faculties.length === FACULTY_NAMES.length;
+    setDataState((prev) => ({
+      ...prev,
+      eligible_faculties: allSelected ? [] : [...FACULTY_NAMES],
+      eligible_programs: allSelected ? [] : prev.eligible_programs,
+    }));
   };
 
-  const removeRequirement = (req: string) => {
-    setData("requirements", data.requirements.filter((r) => r !== req));
+  const handleSelectAllPrograms = () => {
+    const allSelected = data.eligible_programs.length === availablePrograms.length;
+    setData("eligible_programs", allSelected ? [] : [...availablePrograms] as any);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
