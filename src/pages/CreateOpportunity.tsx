@@ -11,9 +11,7 @@ import {
   Globe,
   ShieldCheck,
   Info,
-  X,
   CalendarIcon,
-  Plus,
 } from "lucide-react";
 import { format } from "date-fns";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
