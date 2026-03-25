@@ -718,17 +718,14 @@ const CreateOpportunity = () => {
               {/* ── Section 7: Admin Controls ──────────────────────────────── */}
               <SectionCard icon={ShieldCheck} title="Admin Controls" description="Set visibility, verification status, and promotion.">
                 <div className="space-y-5">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold">Status</Label>
-                      <Select value={data.status} onValueChange={(v) => setData("status", v)}>
-                        <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {STATUS_OPTIONS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold">Status</Label>
+                    <Select value={data.status} onValueChange={(v) => setData("status", v)}>
+                      <SelectTrigger className="h-9 text-sm max-w-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {STATUS_OPTIONS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="flex items-start gap-3">
