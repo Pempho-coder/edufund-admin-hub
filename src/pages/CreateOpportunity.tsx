@@ -668,55 +668,16 @@ const CreateOpportunity = () => {
                 </div>
               </SectionCard>
 
-              {/* ── Section 5: Application Requirements ────────────────────── */}
-              <SectionCard icon={FileText} title="Application Requirements" description="Documents and conditions students must satisfy.">
-                <div className="space-y-5">
-                  <div className="space-y-2">
-                    <Label className="text-xs font-semibold">Required Documents</Label>
-                    <CheckboxGroup items={REQUIRED_DOCS} selected={data.required_documents} onToggle={(v) => toggleArrayValue("required_documents", v)} columns={3} />
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-2">
-                    <Label className="text-xs font-semibold">Specific Requirements</Label>
-                    <p className="text-[11px] text-muted-foreground -mt-1">Add structured requirements. Press Enter or click Add.</p>
-                    <div className="flex gap-2">
-                      <Input
-                        value={requirementInput}
-                        onChange={(e) => setRequirementInput(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addRequirement(); } }}
-                        placeholder="e.g. Must be enrolled full-time"
-                        className="h-9 text-sm flex-1"
-                      />
-                      <Button type="button" variant="outline" size="sm" onClick={addRequirement} className="h-9 gap-1">
-                        <Plus className="w-3.5 h-3.5" /> Add
-                      </Button>
-                    </div>
-                    {data.requirements.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mt-1">
-                        {data.requirements.map((req) => (
-                          <Badge key={req} variant="secondary" className="text-xs gap-1 py-1 px-2.5">
-                            {req}
-                            <button type="button" onClick={() => removeRequirement(req)} className="ml-0.5 hover:text-destructive">
-                              <X className="w-3 h-3" />
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold">Additional Notes</Label>
-                    <Textarea
-                      value={data.additional_notes}
-                      onChange={(e) => setData("additional_notes", e.target.value)}
-                      placeholder="Any extra conditions or notes for this opportunity…"
-                      rows={3}
-                      className="text-sm resize-none"
-                    />
-                  </div>
+              {/* ── Additional Notes ──────────────────────────────────── */}
+              <SectionCard icon={FileText} title="Additional Notes" description="Any extra conditions or notes for this opportunity.">
+                <div className="space-y-1.5">
+                  <Textarea
+                    value={data.additional_notes}
+                    onChange={(e) => setData("additional_notes", e.target.value)}
+                    placeholder="Any extra conditions or notes for this opportunity…"
+                    rows={3}
+                    className="text-sm resize-none"
+                  />
                 </div>
               </SectionCard>
 
