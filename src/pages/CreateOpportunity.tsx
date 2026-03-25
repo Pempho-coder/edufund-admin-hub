@@ -11,9 +11,7 @@ import {
   Globe,
   ShieldCheck,
   Info,
-  X,
   CalendarIcon,
-  Plus,
 } from "lucide-react";
 import { format } from "date-fns";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
@@ -102,14 +100,6 @@ const FACULTIES: Record<string, string[]> = {
 
 const FACULTY_NAMES = Object.keys(FACULTIES);
 
-const YEARS = [
-  { value: "1", label: "Year 1" },
-  { value: "2", label: "Year 2" },
-  { value: "3", label: "Year 3" },
-  { value: "4", label: "Year 4" },
-  { value: "5", label: "Year 5" },
-];
-
 const LEVELS = [
   "Certificate",
   "Diploma",
@@ -120,11 +110,6 @@ const LEVELS = [
 ];
 
 const LEARNING_MODES = ["Generic", "ODeL", "Upgrading", "Weekend"];
-
-const SEMESTERS = [
-  { value: "1", label: "Semester 1" },
-  { value: "2", label: "Semester 2" },
-];
 
 const GENDERS = ["All", "Male", "Female"];
 
@@ -165,18 +150,6 @@ const TAGS = [
   "Financial Need",
 ];
 
-const REQUIRED_DOCS = [
-  "National ID",
-  "Student ID",
-  "MSCE Certificate",
-  "Admission Letter",
-  "Semester Results",
-  "Recommendation Letter",
-  "Personal Statement",
-  "Fee Statement",
-  "CV",
-];
-
 const APP_METHODS = [
   "Internal Application",
   "External Link",
@@ -193,12 +166,6 @@ const STATUS_OPTIONS = [
   { value: "restricted", label: "Restricted" },
 ];
 
-const VERIFICATION_OPTIONS = [
-  { value: "draft", label: "Draft" },
-  { value: "needs_verification", label: "Needs Verification" },
-  { value: "verified", label: "Verified" },
-];
-
 // ─── Type ────────────────────────────────────────────────────────────────────
 
 type OpportunityForm = {
@@ -211,26 +178,20 @@ type OpportunityForm = {
   deadline: string;
   eligible_faculties: string[];
   eligible_programs: string[];
-  eligible_years: string[];
   eligible_levels: string[];
   eligible_learning_modes: string[];
-  eligible_semesters: string[];
   eligible_gender: string;
   eligible_nationalities: string[];
   min_average_score: string;
   requires_financial_need: boolean;
-  allow_other_sponsorship: boolean;
   funding_coverage: string[];
   tags: string[];
-  required_documents: string[];
-  requirements: string[];
   additional_notes: string;
   application_method: string;
   application_link: string;
   contact_email: string;
   contact_phone: string;
   featured: boolean;
-  verification_status: string;
   status: string;
 };
 
@@ -244,26 +205,20 @@ const initialData: OpportunityForm = {
   deadline: "",
   eligible_faculties: [],
   eligible_programs: [],
-  eligible_years: [],
   eligible_levels: [],
   eligible_learning_modes: [],
-  eligible_semesters: [],
   eligible_gender: "All",
   eligible_nationalities: [],
   min_average_score: "",
   requires_financial_need: false,
-  allow_other_sponsorship: true,
   funding_coverage: [],
   tags: [],
-  required_documents: [],
-  requirements: [],
   additional_notes: "",
   application_method: "Internal Application",
   application_link: "",
   contact_email: "",
   contact_phone: "",
   featured: false,
-  verification_status: "draft",
   status: "open",
 };
 
@@ -277,7 +232,6 @@ const CreateOpportunity = () => {
   const [errors] = useState<Partial<Record<keyof OpportunityForm, string>>>({});
   const [openingDate, setOpeningDate] = useState<Date | undefined>();
   const [deadlineDate, setDeadlineDate] = useState<Date | undefined>();
-  const [requirementInput, setRequirementInput] = useState("");
 
   // Simulates Inertia's setData
   const setData = <K extends keyof OpportunityForm>(key: K, value: OpportunityForm[K]) => {
@@ -315,16 +269,18 @@ const CreateOpportunity = () => {
     }));
   };
 
-  const addRequirement = () => {
-    const trimmed = requirementInput.trim();
-    if (trimmed && !data.requirements.includes(trimmed)) {
-      setData("requirements", [...data.requirements, trimmed]);
-      setRequirementInput("");
-    }
+  const handleSelectAllFaculties = () => {
+    const allSelected = data.eligible_faculties.length === FACULTY_NAMES.length;
+    setDataState((prev) => ({
+      ...prev,
+      eligible_faculties: allSelected ? [] : [...FACULTY_NAMES],
+      eligible_programs: allSelected ? [] : prev.eligible_programs,
+    }));
   };
 
-  const removeRequirement = (req: string) => {
-    setData("requirements", data.requirements.filter((r) => r !== req));
+  const handleSelectAllPrograms = () => {
+    const allSelected = data.eligible_programs.length === availablePrograms.length;
+    setData("eligible_programs", allSelected ? [] : [...availablePrograms] as any);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -568,10 +524,17 @@ const CreateOpportunity = () => {
               {/* ── Section 2: Academic Eligibility ────────────────────────── */}
               <SectionCard icon={GraduationCap} title="Academic Eligibility" description="Define which students qualify based on their academic profile." badge="Matching">
                 <div className="space-y-5">
-                  {/* Faculties */}
+                   {/* Faculties */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-semibold">Eligible Faculties</Label>
-                    <p className="text-[11px] text-muted-foreground -mt-1">Leave empty to allow all faculties.</p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label className="text-xs font-semibold">Eligible Faculties</Label>
+                        <p className="text-[11px] text-muted-foreground">Leave empty to allow all faculties.</p>
+                      </div>
+                      <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={handleSelectAllFaculties}>
+                        {data.eligible_faculties.length === FACULTY_NAMES.length ? "Deselect All" : "Select All"}
+                      </Button>
+                    </div>
                     <CheckboxGroup
                       items={FACULTY_NAMES}
                       selected={data.eligible_faculties}
@@ -584,12 +547,21 @@ const CreateOpportunity = () => {
 
                   {/* Programs */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-semibold">Eligible Programs</Label>
-                    <p className="text-[11px] text-muted-foreground -mt-1">
-                      {data.eligible_faculties.length > 0
-                        ? `Showing programs from ${data.eligible_faculties.length} selected ${data.eligible_faculties.length === 1 ? "faculty" : "faculties"}. Leave empty to allow all programs within those faculties.`
-                        : "Select faculties first or leave empty to allow all programs."}
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label className="text-xs font-semibold">Eligible Programs</Label>
+                        <p className="text-[11px] text-muted-foreground">
+                          {data.eligible_faculties.length > 0
+                            ? `Showing programs from ${data.eligible_faculties.length} selected ${data.eligible_faculties.length === 1 ? "faculty" : "faculties"}.`
+                            : "Select faculties first or leave empty to allow all programs."}
+                        </p>
+                      </div>
+                      {availablePrograms.length > 0 && (
+                        <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={handleSelectAllPrograms}>
+                          {data.eligible_programs.length === availablePrograms.length ? "Deselect All" : "Select All"}
+                        </Button>
+                      )}
+                    </div>
                     {availablePrograms.length > 0 && (
                       <div className="max-h-56 overflow-y-auto rounded-lg border border-border/40 p-3">
                         <CheckboxGroup
@@ -603,22 +575,6 @@ const CreateOpportunity = () => {
                   </div>
 
                   <Separator />
-
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    {/* Years */}
-                    <div className="space-y-2">
-                      <Label className="text-xs font-semibold">Eligible Years of Study</Label>
-                      <p className="text-[11px] text-muted-foreground -mt-1">Leave empty to allow all years.</p>
-                      <CheckboxGroup items={YEARS} selected={data.eligible_years} onToggle={(v) => toggleArrayValue("eligible_years", v)} columns={3} />
-                    </div>
-
-                    {/* Semesters */}
-                    <div className="space-y-2">
-                      <Label className="text-xs font-semibold">Eligible Semesters</Label>
-                      <p className="text-[11px] text-muted-foreground -mt-1">Leave empty to allow both.</p>
-                      <CheckboxGroup items={SEMESTERS} selected={data.eligible_semesters} onToggle={(v) => toggleArrayValue("eligible_semesters", v)} columns={2} />
-                    </div>
-                  </div>
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     {/* Levels */}
@@ -675,13 +631,6 @@ const CreateOpportunity = () => {
                         <p className="text-[11px] text-muted-foreground">Only match students who have indicated financial need in their profile.</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <Switch checked={data.allow_other_sponsorship} onCheckedChange={(v) => setData("allow_other_sponsorship", v)} className="mt-0.5" />
-                      <div>
-                        <Label className="text-sm font-medium cursor-pointer">Allow Other Sponsorship</Label>
-                        <p className="text-[11px] text-muted-foreground">Allow students who already have another form of sponsorship to apply.</p>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </SectionCard>
@@ -724,55 +673,16 @@ const CreateOpportunity = () => {
                 </div>
               </SectionCard>
 
-              {/* ── Section 5: Application Requirements ────────────────────── */}
-              <SectionCard icon={FileText} title="Application Requirements" description="Documents and conditions students must satisfy.">
-                <div className="space-y-5">
-                  <div className="space-y-2">
-                    <Label className="text-xs font-semibold">Required Documents</Label>
-                    <CheckboxGroup items={REQUIRED_DOCS} selected={data.required_documents} onToggle={(v) => toggleArrayValue("required_documents", v)} columns={3} />
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-2">
-                    <Label className="text-xs font-semibold">Specific Requirements</Label>
-                    <p className="text-[11px] text-muted-foreground -mt-1">Add structured requirements. Press Enter or click Add.</p>
-                    <div className="flex gap-2">
-                      <Input
-                        value={requirementInput}
-                        onChange={(e) => setRequirementInput(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addRequirement(); } }}
-                        placeholder="e.g. Must be enrolled full-time"
-                        className="h-9 text-sm flex-1"
-                      />
-                      <Button type="button" variant="outline" size="sm" onClick={addRequirement} className="h-9 gap-1">
-                        <Plus className="w-3.5 h-3.5" /> Add
-                      </Button>
-                    </div>
-                    {data.requirements.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mt-1">
-                        {data.requirements.map((req) => (
-                          <Badge key={req} variant="secondary" className="text-xs gap-1 py-1 px-2.5">
-                            {req}
-                            <button type="button" onClick={() => removeRequirement(req)} className="ml-0.5 hover:text-destructive">
-                              <X className="w-3 h-3" />
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold">Additional Notes</Label>
-                    <Textarea
-                      value={data.additional_notes}
-                      onChange={(e) => setData("additional_notes", e.target.value)}
-                      placeholder="Any extra conditions or notes for this opportunity…"
-                      rows={3}
-                      className="text-sm resize-none"
-                    />
-                  </div>
+              {/* ── Additional Notes ──────────────────────────────────── */}
+              <SectionCard icon={FileText} title="Additional Notes" description="Any extra conditions or notes for this opportunity.">
+                <div className="space-y-1.5">
+                  <Textarea
+                    value={data.additional_notes}
+                    onChange={(e) => setData("additional_notes", e.target.value)}
+                    placeholder="Any extra conditions or notes for this opportunity…"
+                    rows={3}
+                    className="text-sm resize-none"
+                  />
                 </div>
               </SectionCard>
 
@@ -813,25 +723,14 @@ const CreateOpportunity = () => {
               {/* ── Section 7: Admin Controls ──────────────────────────────── */}
               <SectionCard icon={ShieldCheck} title="Admin Controls" description="Set visibility, verification status, and promotion.">
                 <div className="space-y-5">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold">Status</Label>
-                      <Select value={data.status} onValueChange={(v) => setData("status", v)}>
-                        <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {STATUS_OPTIONS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold">Verification Status</Label>
-                      <Select value={data.verification_status} onValueChange={(v) => setData("verification_status", v)}>
-                        <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {VERIFICATION_OPTIONS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold">Status</Label>
+                    <Select value={data.status} onValueChange={(v) => setData("status", v)}>
+                      <SelectTrigger className="h-9 text-sm max-w-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {STATUS_OPTIONS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="flex items-start gap-3">
