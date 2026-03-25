@@ -232,10 +232,8 @@ const CreateOpportunity = () => {
   const [data, setDataState] = useState<OpportunityForm>(initialData);
   const [processing, setProcessing] = useState(false);
   const [errors] = useState<Partial<Record<keyof OpportunityForm, string>>>({});
-  const [errors] = useState<Partial<Record<keyof OpportunityForm, string>>>({});
   const [openingDate, setOpeningDate] = useState<Date | undefined>();
   const [deadlineDate, setDeadlineDate] = useState<Date | undefined>();
-  const [requirementInput, setRequirementInput] = useState("");
 
   // Simulates Inertia's setData
   const setData = <K extends keyof OpportunityForm>(key: K, value: OpportunityForm[K]) => {
