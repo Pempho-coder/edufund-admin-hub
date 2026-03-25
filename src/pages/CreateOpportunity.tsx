@@ -102,14 +102,6 @@ const FACULTIES: Record<string, string[]> = {
 
 const FACULTY_NAMES = Object.keys(FACULTIES);
 
-const YEARS = [
-  { value: "1", label: "Year 1" },
-  { value: "2", label: "Year 2" },
-  { value: "3", label: "Year 3" },
-  { value: "4", label: "Year 4" },
-  { value: "5", label: "Year 5" },
-];
-
 const LEVELS = [
   "Certificate",
   "Diploma",
