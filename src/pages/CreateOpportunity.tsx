@@ -542,12 +542,21 @@ const CreateOpportunity = () => {
 
                   {/* Programs */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-semibold">Eligible Programs</Label>
-                    <p className="text-[11px] text-muted-foreground -mt-1">
-                      {data.eligible_faculties.length > 0
-                        ? `Showing programs from ${data.eligible_faculties.length} selected ${data.eligible_faculties.length === 1 ? "faculty" : "faculties"}. Leave empty to allow all programs within those faculties.`
-                        : "Select faculties first or leave empty to allow all programs."}
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label className="text-xs font-semibold">Eligible Programs</Label>
+                        <p className="text-[11px] text-muted-foreground">
+                          {data.eligible_faculties.length > 0
+                            ? `Showing programs from ${data.eligible_faculties.length} selected ${data.eligible_faculties.length === 1 ? "faculty" : "faculties"}.`
+                            : "Select faculties first or leave empty to allow all programs."}
+                        </p>
+                      </div>
+                      {availablePrograms.length > 0 && (
+                        <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={handleSelectAllPrograms}>
+                          {data.eligible_programs.length === availablePrograms.length ? "Deselect All" : "Select All"}
+                        </Button>
+                      )}
+                    </div>
                     {availablePrograms.length > 0 && (
                       <div className="max-h-56 overflow-y-auto rounded-lg border border-border/40 p-3">
                         <CheckboxGroup
