@@ -626,13 +626,6 @@ const CreateOpportunity = () => {
                         <p className="text-[11px] text-muted-foreground">Only match students who have indicated financial need in their profile.</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <Switch checked={data.allow_other_sponsorship} onCheckedChange={(v) => setData("allow_other_sponsorship", v)} className="mt-0.5" />
-                      <div>
-                        <Label className="text-sm font-medium cursor-pointer">Allow Other Sponsorship</Label>
-                        <p className="text-[11px] text-muted-foreground">Allow students who already have another form of sponsorship to apply.</p>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </SectionCard>
