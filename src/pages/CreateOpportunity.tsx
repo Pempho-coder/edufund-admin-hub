@@ -113,11 +113,6 @@ const LEVELS = [
 
 const LEARNING_MODES = ["Generic", "ODeL", "Upgrading", "Weekend"];
 
-const SEMESTERS = [
-  { value: "1", label: "Semester 1" },
-  { value: "2", label: "Semester 2" },
-];
-
 const GENDERS = ["All", "Male", "Female"];
 
 const NATIONALITIES = [
