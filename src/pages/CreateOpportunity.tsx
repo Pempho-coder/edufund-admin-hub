@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -12,6 +12,14 @@ import {
   ShieldCheck,
   Info,
   CalendarIcon,
+  CheckCircle2,
+  Circle,
+  ChevronRight,
+  Zap,
+  Star,
+  Mail,
+  Phone,
+  LinkIcon,
 } from "lucide-react";
 import { format } from "date-fns";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
@@ -32,8 +40,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 
@@ -159,11 +167,21 @@ const APP_METHODS = [
 ];
 
 const STATUS_OPTIONS = [
-  { value: "open", label: "Open" },
-  { value: "closing_soon", label: "Closing Soon" },
-  { value: "closed", label: "Closed" },
-  { value: "limited", label: "Limited" },
-  { value: "restricted", label: "Restricted" },
+  { value: "open", label: "Open", color: "text-emerald-600" },
+  { value: "closing_soon", label: "Closing Soon", color: "text-amber-600" },
+  { value: "closed", label: "Closed", color: "text-red-500" },
+  { value: "limited", label: "Limited", color: "text-blue-500" },
+  { value: "restricted", label: "Restricted", color: "text-purple-500" },
+];
+
+const STEPS = [
+  { id: "basic", label: "Basic Info", icon: FileText },
+  { id: "academic", label: "Academic", icon: GraduationCap },
+  { id: "personal", label: "Personal", icon: Users },
+  { id: "funding", label: "Funding", icon: Wallet },
+  { id: "notes", label: "Notes", icon: FileText },
+  { id: "method", label: "Method", icon: Globe },
+  { id: "controls", label: "Controls", icon: ShieldCheck },
 ];
 
 // ─── Type ────────────────────────────────────────────────────────────────────
@@ -232,8 +250,9 @@ const CreateOpportunity = () => {
   const [errors] = useState<Partial<Record<keyof OpportunityForm, string>>>({});
   const [openingDate, setOpeningDate] = useState<Date | undefined>();
   const [deadlineDate, setDeadlineDate] = useState<Date | undefined>();
+  const [activeSection, setActiveSection] = useState("basic");
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // Simulates Inertia's setData
   const setData = <K extends keyof OpportunityForm>(key: K, value: OpportunityForm[K]) => {
     setDataState((prev) => ({ ...prev, [key]: value }));
   };
@@ -243,7 +262,6 @@ const CreateOpportunity = () => {
     setData(key, arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value] as any);
   };
 
-  // When faculties change, reset programs that no longer belong
   const availablePrograms = useMemo(() => {
     if (data.eligible_faculties.length === 0) {
       return Object.values(FACULTIES).flat();
@@ -283,10 +301,47 @@ const CreateOpportunity = () => {
     setData("eligible_programs", allSelected ? [] : [...availablePrograms] as any);
   };
 
+  // Completion progress
+  const completionProgress = useMemo(() => {
+    let filled = 0;
+    let total = 7;
+    if (data.title) filled++;
+    if (data.organization) filled++;
+    if (data.category) filled++;
+    if (data.description) filled++;
+    if (data.deadline) filled++;
+    if (data.application_method) filled++;
+    if (data.status) filled++;
+    return Math.round((filled / total) * 100);
+  }, [data]);
+
+  // Intersection observer for active section tracking
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: "-20% 0px -60% 0px" }
+    );
+
+    Object.values(sectionRefs.current).forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollToSection = (id: string) => {
+    sectionRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setProcessing(true);
-    // Simulate Inertia post()
     setTimeout(() => {
       setProcessing(false);
       toast({ title: "Opportunity created", description: `"${data.title}" has been created successfully.` });
@@ -297,42 +352,54 @@ const CreateOpportunity = () => {
   const fieldError = (key: keyof OpportunityForm) =>
     errors[key] ? <p className="text-sm text-destructive mt-1">{errors[key]}</p> : null;
 
-  // ─── Section helper ──────────────────────────────────────────────────
+  // ─── Section Card ────────────────────────────────────────────────────
 
   const SectionCard = ({
+    id,
     icon: Icon,
     title,
     description,
     badge,
     children,
   }: {
+    id: string;
     icon: React.ElementType;
     title: string;
     description: string;
     badge?: string;
     children: React.ReactNode;
   }) => (
-    <Card className="border-border/60 shadow-sm">
-      <CardHeader className="pb-4">
-        <div className="flex items-start gap-3">
-          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 text-primary shrink-0">
-            <Icon className="w-4.5 h-4.5" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <CardTitle className="text-base font-semibold">{title}</CardTitle>
-              {badge && (
-                <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-normal border-primary/30 text-primary">
-                  {badge}
-                </Badge>
-              )}
+    <div
+      id={id}
+      ref={(el) => { sectionRefs.current[id] = el; }}
+      className="scroll-mt-6"
+    >
+      <div className="group relative rounded-xl border border-border/50 bg-card shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
+        {/* Top accent line */}
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-primary/60 via-primary/20 to-transparent" />
+
+        <div className="p-5 sm:p-6">
+          <div className="flex items-start gap-3.5 mb-5">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 text-primary shrink-0 ring-1 ring-primary/10">
+              <Icon className="w-[18px] h-[18px]" />
             </div>
-            <CardDescription className="text-xs mt-0.5">{description}</CardDescription>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2.5">
+                <h3 className="text-[15px] font-semibold text-foreground tracking-tight">{title}</h3>
+                {badge && (
+                  <Badge className="text-[10px] px-2 py-0.5 font-medium bg-primary/10 text-primary border-0 rounded-md">
+                    <Zap className="w-2.5 h-2.5 mr-0.5" />
+                    {badge}
+                  </Badge>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{description}</p>
+            </div>
           </div>
+          {children}
         </div>
-      </CardHeader>
-      <CardContent className="pt-0">{children}</CardContent>
-    </Card>
+      </div>
+    </div>
   );
 
   // ─── Checkbox group ──────────────────────────────────────────────────
@@ -348,26 +415,33 @@ const CreateOpportunity = () => {
     onToggle: (v: string) => void;
     columns?: number;
   }) => (
-    <div className={cn("grid gap-2", columns === 3 ? "sm:grid-cols-3" : columns === 4 ? "sm:grid-cols-4" : "sm:grid-cols-2")}>
+    <div className={cn(
+      "grid gap-1.5",
+      columns === 3 ? "sm:grid-cols-3" : columns === 4 ? "sm:grid-cols-4" : "sm:grid-cols-2"
+    )}>
       {items.map((item) => {
         const value = typeof item === "string" ? item : item.value;
         const label = typeof item === "string" ? item : item.label;
+        const isActive = selected.includes(value);
         return (
           <label
             key={value}
             className={cn(
-              "flex items-center gap-2.5 rounded-lg border px-3 py-2.5 cursor-pointer transition-all text-sm",
-              selected.includes(value)
-                ? "border-primary/40 bg-primary/5 text-foreground"
-                : "border-border/60 hover:border-border text-muted-foreground hover:text-foreground"
+              "group/item flex items-center gap-2.5 rounded-lg border px-3 py-2.5 cursor-pointer transition-all duration-200 text-sm",
+              isActive
+                ? "border-primary/30 bg-primary/[0.06] text-foreground shadow-sm shadow-primary/5"
+                : "border-border/40 hover:border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted/30"
             )}
           >
             <Checkbox
-              checked={selected.includes(value)}
+              checked={isActive}
               onCheckedChange={() => onToggle(value)}
-              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              className={cn(
+                "transition-all duration-200",
+                isActive && "data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              )}
             />
-            <span className="leading-tight">{label}</span>
+            <span className="leading-tight text-[13px]">{label}</span>
           </label>
         );
       })}
@@ -392,31 +466,43 @@ const CreateOpportunity = () => {
         <AdminTopNav onMenuToggle={() => setMobileOpen((o) => !o)} />
 
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
-          {/* Header */}
-          <div className="border-b border-border/60 bg-card px-4 lg:px-6 py-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          {/* ── Header ──────────────────────────────────────── */}
+          <div className="border-b border-border/40 bg-card/80 backdrop-blur-sm px-4 lg:px-6 py-4 sticky top-0 z-20">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 max-w-5xl mx-auto">
               <div className="flex items-center gap-3">
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 shrink-0"
+                  className="h-9 w-9 shrink-0 rounded-lg hover:bg-muted/80"
                   onClick={() => navigate("/opportunities")}
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </Button>
                 <div>
-                  <h1 className="text-xl font-bold text-foreground tracking-tight">Create Opportunity</h1>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-lg font-bold text-foreground tracking-tight">Create Opportunity</h1>
+                    <Badge className="bg-primary/10 text-primary border-0 text-[10px] font-medium px-2 py-0.5 rounded-md">
+                      New
+                    </Badge>
+                  </div>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Add a new funding opportunity. Fields marked with <span className="text-destructive">*</span> are required.
+                    Fields marked with <span className="text-destructive font-medium">*</span> are required
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 sm:ml-auto">
-                <Button type="button" variant="outline" size="sm" onClick={() => navigate("/opportunities")}>
+              <div className="flex items-center gap-2">
+                {/* Progress indicator */}
+                <div className="hidden sm:flex items-center gap-2 mr-3">
+                  <span className="text-[11px] font-medium text-muted-foreground">{completionProgress}%</span>
+                  <div className="w-20">
+                    <Progress value={completionProgress} className="h-1.5" />
+                  </div>
+                </div>
+                <Button type="button" variant="outline" size="sm" className="rounded-lg" onClick={() => navigate("/opportunities")}>
                   Cancel
                 </Button>
-                <Button type="submit" size="sm" disabled={processing} className="gap-1.5 shadow-sm shadow-primary/20">
+                <Button type="submit" size="sm" disabled={processing} className="gap-1.5 rounded-lg shadow-md shadow-primary/15 hover:shadow-lg hover:shadow-primary/20 transition-all">
                   <Save className="w-3.5 h-3.5" />
                   {processing ? "Saving…" : "Save Opportunity"}
                 </Button>
@@ -424,339 +510,411 @@ const CreateOpportunity = () => {
             </div>
           </div>
 
-          {/* Form body */}
-          <main className="flex-1 p-4 lg:p-6 overflow-auto">
-            <div className="max-w-4xl mx-auto space-y-5">
-              {/* Matching info banner */}
-              <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
-                <Sparkles className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                <div className="text-xs text-foreground/80">
-                  <span className="font-semibold text-foreground">Smart Matching Enabled.</span>{" "}
-                  Eligibility fields are used to automatically match and recommend this opportunity to qualifying students. The more criteria you specify, the more accurate the recommendations.
-                </div>
-              </div>
+          {/* ── Form body with sidebar navigation ─────────── */}
+          <main className="flex-1 overflow-auto">
+            <div className="max-w-5xl mx-auto flex gap-6 p-4 lg:p-6">
+              {/* Left: Step navigation (desktop only) */}
+              <nav className="hidden xl:block w-48 shrink-0">
+                <div className="sticky top-24 space-y-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3 px-2">Sections</p>
+                  {STEPS.map((step) => {
+                    const StepIcon = step.icon;
+                    const isActive = activeSection === step.id;
+                    return (
+                      <button
+                        key={step.id}
+                        type="button"
+                        onClick={() => scrollToSection(step.id)}
+                        className={cn(
+                          "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 text-left",
+                          isActive
+                            ? "bg-primary/10 text-primary shadow-sm"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        )}
+                      >
+                        <StepIcon className="w-3.5 h-3.5 shrink-0" />
+                        <span>{step.label}</span>
+                        {isActive && <ChevronRight className="w-3 h-3 ml-auto" />}
+                      </button>
+                    );
+                  })}
 
-              {/* ── Section 1: Basic Info ──────────────────────────────────── */}
-              <SectionCard icon={FileText} title="Basic Information" description="Core details about the funding opportunity.">
-                <div className="space-y-4">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold">Opportunity Title <span className="text-destructive">*</span></Label>
-                      <Input value={data.title} onChange={(e) => setData("title", e.target.value)} placeholder="e.g. Mastercard Foundation Scholars Program" className="h-9 text-sm" />
-                      {fieldError("title")}
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold">Organization <span className="text-destructive">*</span></Label>
-                      <Input value={data.organization} onChange={(e) => setData("organization", e.target.value)} placeholder="e.g. Mastercard Foundation" className="h-9 text-sm" />
-                      {fieldError("organization")}
-                    </div>
-                  </div>
-
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold">Category <span className="text-destructive">*</span></Label>
-                      <Select value={data.category} onValueChange={(v) => setData("category", v)}>
-                        <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Select category" /></SelectTrigger>
-                        <SelectContent>
-                          {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                      {fieldError("category")}
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold">Amount</Label>
-                      <Input value={data.amount} onChange={(e) => setData("amount", e.target.value)} placeholder="e.g. MWK 2,500,000 or Full Coverage" className="h-9 text-sm" />
-                    </div>
-                  </div>
-
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold">Opening Date</Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" className={cn("w-full h-9 justify-start text-left text-sm font-normal", !openingDate && "text-muted-foreground")}>
-                            <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-                            {openingDate ? format(openingDate, "PPP") : "Select opening date"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={openingDate}
-                            onSelect={(d) => { setOpeningDate(d); if (d) setData("opening_date", format(d, "yyyy-MM-dd")); }}
-                            initialFocus
-                            className="p-3 pointer-events-auto"
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold">Deadline <span className="text-destructive">*</span></Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" className={cn("w-full h-9 justify-start text-left text-sm font-normal", !deadlineDate && "text-muted-foreground")}>
-                            <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-                            {deadlineDate ? format(deadlineDate, "PPP") : "Select deadline"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={deadlineDate}
-                            onSelect={(d) => { setDeadlineDate(d); if (d) setData("deadline", format(d, "yyyy-MM-dd")); }}
-                            initialFocus
-                            className="p-3 pointer-events-auto"
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      {fieldError("deadline")}
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold">Description <span className="text-destructive">*</span></Label>
-                    <Textarea value={data.description} onChange={(e) => setData("description", e.target.value)} placeholder="Describe the funding opportunity, its purpose, and what it covers…" rows={4} className="text-sm resize-none" />
-                    {fieldError("description")}
+                  <Separator className="my-3" />
+                  
+                  <div className="px-2 space-y-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Completion</p>
+                    <Progress value={completionProgress} className="h-2" />
+                    <p className="text-[11px] text-muted-foreground">{completionProgress}% filled</p>
                   </div>
                 </div>
-              </SectionCard>
+              </nav>
 
-              {/* ── Section 2: Academic Eligibility ────────────────────────── */}
-              <SectionCard icon={GraduationCap} title="Academic Eligibility" description="Define which students qualify based on their academic profile." badge="Matching">
-                <div className="space-y-5">
-                   {/* Faculties */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-xs font-semibold">Eligible Faculties</Label>
-                        <p className="text-[11px] text-muted-foreground">Leave empty to allow all faculties.</p>
+              {/* Right: Form sections */}
+              <div className="flex-1 min-w-0 space-y-5">
+                {/* Smart Matching banner */}
+                <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-r from-primary/[0.06] via-primary/[0.03] to-transparent px-5 py-4">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
+                  <div className="flex items-start gap-3 relative">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/15 shrink-0">
+                      <Sparkles className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">Smart Matching Enabled</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                        Eligibility fields power automatic recommendations. The more criteria you specify, the more accurate the student matching.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── Section 1: Basic Info ──────────────────── */}
+                <SectionCard id="basic" icon={FileText} title="Basic Information" description="Core details about the funding opportunity.">
+                  <div className="space-y-4">
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold">Opportunity Title <span className="text-destructive">*</span></Label>
+                        <Input value={data.title} onChange={(e) => setData("title", e.target.value)} placeholder="e.g. Mastercard Foundation Scholars Program" className="h-10 text-sm rounded-lg" />
+                        {fieldError("title")}
                       </div>
-                      <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={handleSelectAllFaculties}>
-                        {data.eligible_faculties.length === FACULTY_NAMES.length ? "Deselect All" : "Select All"}
-                      </Button>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold">Organization <span className="text-destructive">*</span></Label>
+                        <Input value={data.organization} onChange={(e) => setData("organization", e.target.value)} placeholder="e.g. Mastercard Foundation" className="h-10 text-sm rounded-lg" />
+                        {fieldError("organization")}
+                      </div>
                     </div>
-                    <CheckboxGroup
-                      items={FACULTY_NAMES}
-                      selected={data.eligible_faculties}
-                      onToggle={handleFacultyToggle}
-                      columns={2}
-                    />
+
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold">Category <span className="text-destructive">*</span></Label>
+                        <Select value={data.category} onValueChange={(v) => setData("category", v)}>
+                          <SelectTrigger className="h-10 text-sm rounded-lg"><SelectValue placeholder="Select category" /></SelectTrigger>
+                          <SelectContent>
+                            {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                        {fieldError("category")}
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold">Amount</Label>
+                        <Input value={data.amount} onChange={(e) => setData("amount", e.target.value)} placeholder="e.g. MWK 2,500,000 or Full Coverage" className="h-10 text-sm rounded-lg" />
+                      </div>
+                    </div>
+
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold">Opening Date</Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline" className={cn("w-full h-10 justify-start text-left text-sm font-normal rounded-lg", !openingDate && "text-muted-foreground")}>
+                              <CalendarIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+                              {openingDate ? format(openingDate, "PPP") : "Select opening date"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={openingDate}
+                              onSelect={(d) => { setOpeningDate(d); if (d) setData("opening_date", format(d, "yyyy-MM-dd")); }}
+                              initialFocus
+                              className="p-3 pointer-events-auto"
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold">Deadline <span className="text-destructive">*</span></Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline" className={cn("w-full h-10 justify-start text-left text-sm font-normal rounded-lg", !deadlineDate && "text-muted-foreground")}>
+                              <CalendarIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+                              {deadlineDate ? format(deadlineDate, "PPP") : "Select deadline"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={deadlineDate}
+                              onSelect={(d) => { setDeadlineDate(d); if (d) setData("deadline", format(d, "yyyy-MM-dd")); }}
+                              initialFocus
+                              className="p-3 pointer-events-auto"
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        {fieldError("deadline")}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold">Description <span className="text-destructive">*</span></Label>
+                      <Textarea value={data.description} onChange={(e) => setData("description", e.target.value)} placeholder="Describe the funding opportunity, its purpose, and what it covers…" rows={4} className="text-sm resize-none rounded-lg" />
+                      {fieldError("description")}
+                    </div>
                   </div>
+                </SectionCard>
 
-                  <Separator />
+                {/* ── Section 2: Academic Eligibility ──────── */}
+                <SectionCard id="academic" icon={GraduationCap} title="Academic Eligibility" description="Define which students qualify based on their academic profile." badge="Matching">
+                  <div className="space-y-5">
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <Label className="text-xs font-semibold">Eligible Faculties</Label>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">Leave empty to allow all faculties.</p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant={data.eligible_faculties.length === FACULTY_NAMES.length ? "secondary" : "outline"}
+                          size="sm"
+                          className="h-7 text-xs rounded-md gap-1"
+                          onClick={handleSelectAllFaculties}
+                        >
+                          {data.eligible_faculties.length === FACULTY_NAMES.length ? (
+                            <><CheckCircle2 className="w-3 h-3" /> Deselect All</>
+                          ) : (
+                            <><Circle className="w-3 h-3" /> Select All</>
+                          )}
+                        </Button>
+                      </div>
+                      <CheckboxGroup
+                        items={FACULTY_NAMES}
+                        selected={data.eligible_faculties}
+                        onToggle={handleFacultyToggle}
+                        columns={2}
+                      />
+                    </div>
 
-                  {/* Programs */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-xs font-semibold">Eligible Programs</Label>
-                        <p className="text-[11px] text-muted-foreground">
-                          {data.eligible_faculties.length > 0
-                            ? `Showing programs from ${data.eligible_faculties.length} selected ${data.eligible_faculties.length === 1 ? "faculty" : "faculties"}.`
-                            : "Select faculties first or leave empty to allow all programs."}
-                        </p>
+                    <Separator className="bg-border/40" />
+
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <Label className="text-xs font-semibold">Eligible Programs</Label>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">
+                            {data.eligible_faculties.length > 0
+                              ? `Showing programs from ${data.eligible_faculties.length} selected ${data.eligible_faculties.length === 1 ? "faculty" : "faculties"}.`
+                              : "Select faculties first or leave empty to allow all programs."}
+                          </p>
+                        </div>
+                        {availablePrograms.length > 0 && (
+                          <Button
+                            type="button"
+                            variant={data.eligible_programs.length === availablePrograms.length ? "secondary" : "outline"}
+                            size="sm"
+                            className="h-7 text-xs rounded-md gap-1"
+                            onClick={handleSelectAllPrograms}
+                          >
+                            {data.eligible_programs.length === availablePrograms.length ? (
+                              <><CheckCircle2 className="w-3 h-3" /> Deselect All</>
+                            ) : (
+                              <><Circle className="w-3 h-3" /> Select All</>
+                            )}
+                          </Button>
+                        )}
                       </div>
                       {availablePrograms.length > 0 && (
-                        <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={handleSelectAllPrograms}>
-                          {data.eligible_programs.length === availablePrograms.length ? "Deselect All" : "Select All"}
-                        </Button>
+                        <div className="max-h-56 overflow-y-auto rounded-lg border border-border/30 p-3 bg-muted/20">
+                          <CheckboxGroup
+                            items={availablePrograms}
+                            selected={data.eligible_programs}
+                            onToggle={(v) => toggleArrayValue("eligible_programs", v)}
+                            columns={2}
+                          />
+                        </div>
                       )}
                     </div>
-                    {availablePrograms.length > 0 && (
-                      <div className="max-h-56 overflow-y-auto rounded-lg border border-border/40 p-3">
-                        <CheckboxGroup
-                          items={availablePrograms}
-                          selected={data.eligible_programs}
-                          onToggle={(v) => toggleArrayValue("eligible_programs", v)}
-                          columns={2}
-                        />
+
+                    <Separator className="bg-border/40" />
+
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="space-y-2.5">
+                        <Label className="text-xs font-semibold">Eligible Levels of Study</Label>
+                        <p className="text-[11px] text-muted-foreground -mt-1">Leave empty to allow all levels.</p>
+                        <CheckboxGroup items={LEVELS} selected={data.eligible_levels} onToggle={(v) => toggleArrayValue("eligible_levels", v)} columns={2} />
                       </div>
-                    )}
-                  </div>
-
-                  <Separator />
-
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    {/* Levels */}
-                    <div className="space-y-2">
-                      <Label className="text-xs font-semibold">Eligible Levels of Study</Label>
-                      <p className="text-[11px] text-muted-foreground -mt-1">Leave empty to allow all levels.</p>
-                      <CheckboxGroup items={LEVELS} selected={data.eligible_levels} onToggle={(v) => toggleArrayValue("eligible_levels", v)} columns={2} />
+                      <div className="space-y-2.5">
+                        <Label className="text-xs font-semibold">Eligible Learning Modes</Label>
+                        <p className="text-[11px] text-muted-foreground -mt-1">Leave empty to allow all modes.</p>
+                        <CheckboxGroup items={LEARNING_MODES} selected={data.eligible_learning_modes} onToggle={(v) => toggleArrayValue("eligible_learning_modes", v)} columns={2} />
+                      </div>
                     </div>
 
-                    {/* Learning Modes */}
-                    <div className="space-y-2">
-                      <Label className="text-xs font-semibold">Eligible Learning Modes</Label>
-                      <p className="text-[11px] text-muted-foreground -mt-1">Leave empty to allow all modes.</p>
-                      <CheckboxGroup items={LEARNING_MODES} selected={data.eligible_learning_modes} onToggle={(v) => toggleArrayValue("eligible_learning_modes", v)} columns={2} />
+                    <div className="space-y-1.5 max-w-xs">
+                      <Label className="text-xs font-semibold">Minimum Average Score (%)</Label>
+                      <p className="text-[11px] text-muted-foreground -mt-0.5">Used for recommendation ranking. Leave empty for no minimum.</p>
+                      <Input type="number" min="0" max="100" value={data.min_average_score} onChange={(e) => setData("min_average_score", e.target.value)} placeholder="e.g. 60" className="h-10 text-sm w-32 rounded-lg" />
                     </div>
                   </div>
+                </SectionCard>
 
-                  <div className="space-y-1.5 max-w-xs">
-                    <Label className="text-xs font-semibold">Minimum Average Score (%)</Label>
-                    <p className="text-[11px] text-muted-foreground -mt-0.5">Used for recommendation ranking. Leave empty for no minimum.</p>
-                    <Input type="number" min="0" max="100" value={data.min_average_score} onChange={(e) => setData("min_average_score", e.target.value)} placeholder="e.g. 60" className="h-9 text-sm w-32" />
-                  </div>
-                </div>
-              </SectionCard>
-
-              {/* ── Section 3: Personal & Financial ────────────────────────── */}
-              <SectionCard icon={Users} title="Personal & Financial Eligibility" description="Filter by gender, nationality, and financial background." badge="Matching">
-                <div className="space-y-5">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
+                {/* ── Section 3: Personal & Financial ──────── */}
+                <SectionCard id="personal" icon={Users} title="Personal & Financial Eligibility" description="Filter by gender, nationality, and financial background." badge="Matching">
+                  <div className="space-y-5">
+                    <div className="space-y-1.5 max-w-xs">
                       <Label className="text-xs font-semibold">Eligible Gender</Label>
                       <Select value={data.eligible_gender} onValueChange={(v) => setData("eligible_gender", v)}>
-                        <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="h-10 text-sm rounded-lg"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {GENDERS.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-xs font-semibold">Eligible Nationalities</Label>
-                    <p className="text-[11px] text-muted-foreground -mt-1">Leave empty to allow all nationalities.</p>
-                    <CheckboxGroup items={NATIONALITIES} selected={data.eligible_nationalities} onToggle={(v) => toggleArrayValue("eligible_nationalities", v)} columns={3} />
-                  </div>
+                    <div className="space-y-2.5">
+                      <Label className="text-xs font-semibold">Eligible Nationalities</Label>
+                      <p className="text-[11px] text-muted-foreground -mt-1">Leave empty to allow all nationalities.</p>
+                      <CheckboxGroup items={NATIONALITIES} selected={data.eligible_nationalities} onToggle={(v) => toggleArrayValue("eligible_nationalities", v)} columns={3} />
+                    </div>
 
-                  <Separator />
+                    <Separator className="bg-border/40" />
 
-                  <div className="grid sm:grid-cols-2 gap-5">
-                    <div className="flex items-start gap-3">
-                      <Switch checked={data.requires_financial_need} onCheckedChange={(v) => setData("requires_financial_need", v)} className="mt-0.5" />
-                      <div>
-                        <Label className="text-sm font-medium cursor-pointer">Requires Financial Need</Label>
-                        <p className="text-[11px] text-muted-foreground">Only match students who have indicated financial need in their profile.</p>
+                    <div className="rounded-lg border border-border/40 bg-muted/20 p-4">
+                      <div className="flex items-start gap-3">
+                        <Switch checked={data.requires_financial_need} onCheckedChange={(v) => setData("requires_financial_need", v)} className="mt-0.5" />
+                        <div>
+                          <Label className="text-sm font-medium cursor-pointer">Requires Financial Need</Label>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">Only match students who have indicated financial need in their profile.</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </SectionCard>
+                </SectionCard>
 
-              {/* ── Section 4: Funding Coverage & Tags ─────────────────────── */}
-              <SectionCard icon={Wallet} title="Funding Coverage & Matching Signals" description="Specify what the funding covers and add tags for smarter recommendations." badge="Matching">
-                <div className="space-y-5">
-                  <div className="space-y-2">
-                    <Label className="text-xs font-semibold">Funding Coverage</Label>
-                    <p className="text-[11px] text-muted-foreground -mt-1">Select all areas this opportunity covers. Used to match against student funding needs.</p>
-                    <CheckboxGroup items={FUNDING_COVERAGE} selected={data.funding_coverage} onToggle={(v) => toggleArrayValue("funding_coverage", v)} columns={3} />
-                  </div>
+                {/* ── Section 4: Funding Coverage & Tags ───── */}
+                <SectionCard id="funding" icon={Wallet} title="Funding Coverage & Matching Signals" description="Specify what the funding covers and add tags for smarter recommendations." badge="Matching">
+                  <div className="space-y-5">
+                    <div className="space-y-2.5">
+                      <Label className="text-xs font-semibold">Funding Coverage</Label>
+                      <p className="text-[11px] text-muted-foreground -mt-1">Select all areas this opportunity covers. Used to match against student funding needs.</p>
+                      <CheckboxGroup items={FUNDING_COVERAGE} selected={data.funding_coverage} onToggle={(v) => toggleArrayValue("funding_coverage", v)} columns={3} />
+                    </div>
 
-                  <Separator />
+                    <Separator className="bg-border/40" />
 
-                  <div className="space-y-2">
-                    <Label className="text-xs font-semibold">Tags</Label>
-                    <p className="text-[11px] text-muted-foreground -mt-1">Tags improve recommendation ranking by matching student interests.</p>
-                    <div className="flex flex-wrap gap-2">
-                      {TAGS.map((tag) => {
-                        const active = data.tags.includes(tag);
-                        return (
-                          <button
-                            key={tag}
-                            type="button"
-                            onClick={() => toggleArrayValue("tags", tag)}
-                            className={cn(
-                              "inline-flex items-center rounded-full px-3 py-1.5 text-xs font-medium transition-all border",
-                              active
-                                ? "bg-primary/10 border-primary/30 text-primary"
-                                : "bg-muted/40 border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
-                            )}
-                          >
-                            {tag}
-                          </button>
-                        );
-                      })}
+                    <div className="space-y-2.5">
+                      <Label className="text-xs font-semibold">Tags</Label>
+                      <p className="text-[11px] text-muted-foreground -mt-1">Tags improve recommendation ranking by matching student interests.</p>
+                      <div className="flex flex-wrap gap-2">
+                        {TAGS.map((tag) => {
+                          const active = data.tags.includes(tag);
+                          return (
+                            <button
+                              key={tag}
+                              type="button"
+                              onClick={() => toggleArrayValue("tags", tag)}
+                              className={cn(
+                                "inline-flex items-center rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200 border",
+                                active
+                                  ? "bg-primary/10 border-primary/25 text-primary shadow-sm shadow-primary/10"
+                                  : "bg-muted/30 border-border/40 text-muted-foreground hover:text-foreground hover:border-border/80 hover:bg-muted/50"
+                              )}
+                            >
+                              {active && <CheckCircle2 className="w-3 h-3 mr-1" />}
+                              {tag}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </SectionCard>
+                </SectionCard>
 
-              {/* ── Additional Notes ──────────────────────────────────── */}
-              <SectionCard icon={FileText} title="Additional Notes" description="Any extra conditions or notes for this opportunity.">
-                <div className="space-y-1.5">
+                {/* ── Additional Notes ─────────────────────── */}
+                <SectionCard id="notes" icon={FileText} title="Additional Notes" description="Any extra conditions or notes for this opportunity.">
                   <Textarea
                     value={data.additional_notes}
                     onChange={(e) => setData("additional_notes", e.target.value)}
                     placeholder="Any extra conditions or notes for this opportunity…"
-                    rows={3}
-                    className="text-sm resize-none"
+                    rows={4}
+                    className="text-sm resize-none rounded-lg"
                   />
-                </div>
-              </SectionCard>
+                </SectionCard>
 
-              {/* ── Section 6: Application Method ──────────────────────────── */}
-              <SectionCard icon={Globe} title="Application Method" description="How students will submit their applications.">
-                <div className="space-y-4">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold">Application Method <span className="text-destructive">*</span></Label>
-                      <Select value={data.application_method} onValueChange={(v) => setData("application_method", v)}>
-                        <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                {/* ── Section 6: Application Method ────────── */}
+                <SectionCard id="method" icon={Globe} title="Application Method" description="How students will submit their applications.">
+                  <div className="space-y-4">
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold">Application Method <span className="text-destructive">*</span></Label>
+                        <Select value={data.application_method} onValueChange={(v) => setData("application_method", v)}>
+                          <SelectTrigger className="h-10 text-sm rounded-lg"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {APP_METHODS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {data.application_method === "External Link" && (
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-semibold">Application Link</Label>
+                          <div className="relative">
+                            <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                            <Input value={data.application_link} onChange={(e) => setData("application_link", e.target.value)} placeholder="https://..." className="h-10 text-sm pl-9 rounded-lg" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold">Contact Email</Label>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                          <Input type="email" value={data.contact_email} onChange={(e) => setData("contact_email", e.target.value)} placeholder="funding@mzuni.ac.mw" className="h-10 text-sm pl-9 rounded-lg" />
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold">Contact Phone</Label>
+                        <div className="relative">
+                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                          <Input type="tel" value={data.contact_phone} onChange={(e) => setData("contact_phone", e.target.value)} placeholder="+265 1 123 456" className="h-10 text-sm pl-9 rounded-lg" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </SectionCard>
+
+                {/* ── Section 7: Admin Controls ────────────── */}
+                <SectionCard id="controls" icon={ShieldCheck} title="Admin Controls" description="Set visibility and promotion options.">
+                  <div className="space-y-5">
+                    <div className="space-y-1.5 max-w-xs">
+                      <Label className="text-xs font-semibold">Status</Label>
+                      <Select value={data.status} onValueChange={(v) => setData("status", v)}>
+                        <SelectTrigger className="h-10 text-sm rounded-lg"><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          {APP_METHODS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                          {STATUS_OPTIONS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
-                    {(data.application_method === "External Link") && (
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold">Application Link</Label>
-                        <Input value={data.application_link} onChange={(e) => setData("application_link", e.target.value)} placeholder="https://..." className="h-9 text-sm" />
+
+                    <div className="rounded-lg border border-border/40 bg-gradient-to-r from-amber-500/[0.04] to-transparent p-4">
+                      <div className="flex items-start gap-3">
+                        <Switch checked={data.featured} onCheckedChange={(v) => setData("featured", v)} className="mt-0.5" />
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <Label className="text-sm font-medium cursor-pointer">Featured Opportunity</Label>
+                            <Star className="w-3.5 h-3.5 text-amber-500" />
+                          </div>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">Featured opportunities appear prominently on the student dashboard.</p>
+                        </div>
                       </div>
-                    )}
-                  </div>
-
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold">Contact Email</Label>
-                      <Input type="email" value={data.contact_email} onChange={(e) => setData("contact_email", e.target.value)} placeholder="funding@mzuni.ac.mw" className="h-9 text-sm" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold">Contact Phone</Label>
-                      <Input type="tel" value={data.contact_phone} onChange={(e) => setData("contact_phone", e.target.value)} placeholder="+265 1 123 456" className="h-9 text-sm" />
                     </div>
                   </div>
-                </div>
-              </SectionCard>
+                </SectionCard>
 
-              {/* ── Section 7: Admin Controls ──────────────────────────────── */}
-              <SectionCard icon={ShieldCheck} title="Admin Controls" description="Set visibility, verification status, and promotion.">
-                <div className="space-y-5">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold">Status</Label>
-                    <Select value={data.status} onValueChange={(v) => setData("status", v)}>
-                      <SelectTrigger className="h-9 text-sm max-w-xs"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {STATUS_OPTIONS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
+                {/* ── Sticky Footer ────────────────────────── */}
+                <div className="sticky bottom-0 bg-background/90 backdrop-blur-md border-t border-border/40 -mx-4 lg:-mx-6 px-4 lg:px-6 py-3 flex items-center justify-between gap-3 rounded-t-xl shadow-lg shadow-background/50">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Info className="w-3.5 h-3.5" />
+                    <span>All changes are saved when you click Save.</span>
                   </div>
-
-                  <div className="flex items-start gap-3">
-                    <Switch checked={data.featured} onCheckedChange={(v) => setData("featured", v)} className="mt-0.5" />
-                    <div>
-                      <Label className="text-sm font-medium cursor-pointer">Featured Opportunity</Label>
-                      <p className="text-[11px] text-muted-foreground">Featured opportunities appear prominently on the student dashboard.</p>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <Button type="button" variant="outline" size="sm" className="rounded-lg" onClick={() => navigate("/opportunities")}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" size="sm" disabled={processing} className="gap-1.5 rounded-lg shadow-md shadow-primary/15 hover:shadow-lg hover:shadow-primary/20 transition-all">
+                      <Save className="w-3.5 h-3.5" />
+                      {processing ? "Saving…" : "Save Opportunity"}
+                    </Button>
                   </div>
-                </div>
-              </SectionCard>
-
-              {/* ── Sticky Footer ─────────────────────────────────────────── */}
-              <div className="sticky bottom-0 bg-background/80 backdrop-blur-sm border-t border-border/60 -mx-4 lg:-mx-6 px-4 lg:px-6 py-3 flex items-center justify-between gap-3 rounded-t-lg">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Info className="w-3.5 h-3.5" />
-                  <span>All changes are saved when you click Save.</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button type="button" variant="outline" size="sm" onClick={() => navigate("/opportunities")}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" size="sm" disabled={processing} className="gap-1.5 shadow-sm shadow-primary/20">
-                    <Save className="w-3.5 h-3.5" />
-                    {processing ? "Saving…" : "Save Opportunity"}
-                  </Button>
                 </div>
               </div>
             </div>
