@@ -180,26 +180,20 @@ type OpportunityForm = {
   deadline: string;
   eligible_faculties: string[];
   eligible_programs: string[];
-  eligible_years: string[];
   eligible_levels: string[];
   eligible_learning_modes: string[];
-  eligible_semesters: string[];
   eligible_gender: string;
   eligible_nationalities: string[];
   min_average_score: string;
   requires_financial_need: boolean;
-  allow_other_sponsorship: boolean;
   funding_coverage: string[];
   tags: string[];
-  required_documents: string[];
-  requirements: string[];
   additional_notes: string;
   application_method: string;
   application_link: string;
   contact_email: string;
   contact_phone: string;
   featured: boolean;
-  verification_status: string;
   status: string;
 };
 
@@ -213,26 +207,20 @@ const initialData: OpportunityForm = {
   deadline: "",
   eligible_faculties: [],
   eligible_programs: [],
-  eligible_years: [],
   eligible_levels: [],
   eligible_learning_modes: [],
-  eligible_semesters: [],
   eligible_gender: "All",
   eligible_nationalities: [],
   min_average_score: "",
   requires_financial_need: false,
-  allow_other_sponsorship: true,
   funding_coverage: [],
   tags: [],
-  required_documents: [],
-  requirements: [],
   additional_notes: "",
   application_method: "Internal Application",
   application_link: "",
   contact_email: "",
   contact_phone: "",
   featured: false,
-  verification_status: "draft",
   status: "open",
 };
 
