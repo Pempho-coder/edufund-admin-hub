@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminTopNav } from "@/components/admin/AdminTopNav";
@@ -114,8 +115,8 @@ const Opportunities = () => {
               <h2 className="text-2xl font-bold text-foreground tracking-tight">Manage Opportunities</h2>
               <p className="text-sm text-muted-foreground mt-1">Create, update, and manage funding opportunities available to students.</p>
             </div>
-            <Button onClick={() => { setEditTarget(null); setFormOpen(true); }} className="h-9 text-sm gap-2 shadow-md shadow-primary/15">
-              <Plus className="w-4 h-4" /> Add Opportunity
+            <Button asChild className="h-9 text-sm gap-2 shadow-md shadow-primary/15">
+              <Link to="/opportunities/create"><Plus className="w-4 h-4" /> Add Opportunity</Link>
             </Button>
           </div>
 
