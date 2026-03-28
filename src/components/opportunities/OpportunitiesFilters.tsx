@@ -1,4 +1,4 @@
-import { Search, SlidersHorizontal, X, LayoutGrid, List } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,8 +20,6 @@ interface OpportunitiesFiltersProps {
   onSortChange: (value: string) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
-  viewMode: "card" | "table";
-  onViewModeChange: (mode: "card" | "table") => void;
 }
 
 export function OpportunitiesFilters({
@@ -35,14 +33,9 @@ export function OpportunitiesFilters({
   onSortChange,
   onClearFilters,
   hasActiveFilters,
-  viewMode,
-  onViewModeChange,
 }: OpportunitiesFiltersProps) {
   return (
-    <div
-      className="bg-card/70 backdrop-blur-xl rounded-2xl border border-border/50 p-4 animate-fade-in-up shadow-sm"
-      style={{ animationDelay: "300ms" }}
-    >
+    <div className="bg-card/70 backdrop-blur-xl rounded-2xl border border-border/50 p-4 animate-fade-in-up shadow-sm" style={{ animationDelay: "200ms" }}>
       <div className="flex flex-col lg:flex-row lg:items-center gap-3">
         {/* Search */}
         <div className="relative flex-1">
@@ -108,26 +101,6 @@ export function OpportunitiesFilters({
               Clear
             </Button>
           )}
-
-          {/* View toggle */}
-          <div className="hidden sm:flex items-center gap-0.5 bg-muted/60 rounded-xl p-1 ml-auto">
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`h-8 w-8 rounded-lg transition-all ${viewMode === "card" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"}`}
-              onClick={() => onViewModeChange("card")}
-            >
-              <LayoutGrid className="w-3.5 h-3.5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`h-8 w-8 rounded-lg transition-all ${viewMode === "table" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"}`}
-              onClick={() => onViewModeChange("table")}
-            >
-              <List className="w-3.5 h-3.5" />
-            </Button>
-          </div>
         </div>
       </div>
     </div>

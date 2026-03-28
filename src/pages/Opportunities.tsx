@@ -1,15 +1,11 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Sparkles } from "lucide-react";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Plus } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminTopNav } from "@/components/admin/AdminTopNav";
 import { Button } from "@/components/ui/button";
-import { OpportunitiesStats } from "@/components/opportunities/OpportunitiesStats";
 import { OpportunitiesFilters } from "@/components/opportunities/OpportunitiesFilters";
 import { OpportunitiesTable } from "@/components/opportunities/OpportunitiesTable";
-import { OpportunityCard } from "@/components/opportunities/OpportunityCard";
-import { FeaturedOpportunities } from "@/components/opportunities/FeaturedOpportunities";
 import { OpportunityFormModal } from "@/components/opportunities/OpportunityFormModal";
 import { OpportunityDetailsModal } from "@/components/opportunities/OpportunityDetailsModal";
 import { DeleteOpportunityDialog } from "@/components/opportunities/DeleteOpportunityDialog";
@@ -19,15 +15,12 @@ import { toast } from "@/hooks/use-toast";
 const Opportunities = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [opportunities, setOpportunities] = useState<Opportunity[]>(mockOpportunities);
-  const [viewMode, setViewMode] = useState<"card" | "table">("card");
 
-  // Filters
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [status, setStatus] = useState("all");
   const [sort, setSort] = useState("newest");
 
-  // Modals
   const [formOpen, setFormOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Opportunity | null>(null);
   const [viewTarget, setViewTarget] = useState<Opportunity | null>(null);
@@ -39,9 +32,7 @@ const Opportunities = () => {
     let result = [...opportunities];
     if (search) {
       const q = search.toLowerCase();
-      result = result.filter(
-        (o) => o.title.toLowerCase().includes(q) || o.organization.toLowerCase().includes(q)
-      );
+      result = result.filter((o) => o.title.toLowerCase().includes(q) || o.organization.toLowerCase().includes(q));
     }
     if (category !== "all") result = result.filter((o) => o.category === category);
     if (status !== "all") result = result.filter((o) => o.status === status);
@@ -98,110 +89,53 @@ const Opportunities = () => {
   };
 
   return (
-    <TooltipProvider delayDuration={200}>
-      <div className="flex min-h-screen bg-background">
-        {mobileOpen && (
-          <div className="fixed inset-0 bg-foreground/30 backdrop-blur-sm z-40 lg:hidden animate-fade-in" onClick={() => setMobileOpen(false)} />
-        )}
-        <div className={`fixed inset-y-0 left-0 z-50 lg:hidden transform transition-transform duration-300 ease-out ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
-          <AdminSidebar />
-        </div>
-        <div className="hidden lg:block shrink-0">
-          <AdminSidebar />
-        </div>
+    <div className="flex min-h-screen bg-background">
+      {mobileOpen && (
+        <div className="fixed inset-0 bg-foreground/30 backdrop-blur-sm z-40 lg:hidden animate-fade-in" onClick={() => setMobileOpen(false)} />
+      )}
+      <div className={`fixed inset-y-0 left-0 z-50 lg:hidden transform transition-transform duration-300 ease-out ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <AdminSidebar />
+      </div>
+      <div className="hidden lg:block shrink-0">
+        <AdminSidebar />
+      </div>
 
-        <div className="flex-1 flex flex-col min-w-0">
-          <AdminTopNav onMenuToggle={() => setMobileOpen((o) => !o)} />
+      <div className="flex-1 flex flex-col min-w-0">
+        <AdminTopNav onMenuToggle={() => setMobileOpen((o) => !o)} />
 
-          <main className="flex-1 p-4 lg:p-6 space-y-5 overflow-auto">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-fade-in-up">
-              <div>
-                <h2 className="text-2xl font-bold text-foreground tracking-tight">
-                  Manage Opportunities
-                </h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Create, update, and manage funding opportunities available to students.
-                </p>
-              </div>
-              <Button asChild className="h-10 text-sm gap-2 rounded-xl shadow-lg shadow-primary/15 px-5">
-                <Link to="/opportunities/create">
-                  <Plus className="w-4 h-4" />
-                  Add Opportunity
-                </Link>
-              </Button>
+        <main className="flex-1 p-4 lg:p-6 space-y-5 overflow-auto">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-fade-in-up">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground tracking-tight">Manage Opportunities</h2>
+              <p className="text-sm text-muted-foreground mt-1">Create, update, and manage funding opportunities available to students.</p>
             </div>
+            <Button asChild className="h-10 text-sm gap-2 rounded-xl shadow-lg shadow-primary/15 px-5">
+              <Link to="/opportunities/create"><Plus className="w-4 h-4" /> Add Opportunity</Link>
+            </Button>
+          </div>
 
-            {/* Stats */}
-            <OpportunitiesStats />
+          {/* Filters */}
+          <OpportunitiesFilters
+            search={search} onSearchChange={setSearch}
+            category={category} onCategoryChange={setCategory}
+            status={status} onStatusChange={setStatus}
+            sort={sort} onSortChange={setSort}
+            onClearFilters={clearFilters}
+            hasActiveFilters={hasActiveFilters}
+          />
 
-            {/* Featured */}
-            <FeaturedOpportunities opportunities={opportunities} onView={handleView} />
-
-            {/* Filters & View Toggle */}
-            <OpportunitiesFilters
-              search={search} onSearchChange={setSearch}
-              category={category} onCategoryChange={setCategory}
-              status={status} onStatusChange={setStatus}
-              sort={sort} onSortChange={setSort}
-              onClearFilters={clearFilters}
-              hasActiveFilters={hasActiveFilters}
-              viewMode={viewMode}
-              onViewModeChange={setViewMode}
-            />
-
-            {/* Content */}
-            {viewMode === "card" ? (
-              filtered.length === 0 ? (
-                <EmptyState />
-              ) : (
-                <div className="space-y-3">
-                  {filtered.map((opp, i) => (
-                    <OpportunityCard
-                      key={opp.id}
-                      opportunity={opp}
-                      onView={handleView}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
-                      index={i}
-                    />
-                  ))}
-                </div>
-              )
-            ) : (
-              <OpportunitiesTable opportunities={filtered} onView={handleView} onEdit={handleEdit} onDelete={handleDelete} />
-            )}
-          </main>
-        </div>
-
-        {/* Modals */}
-        <OpportunityFormModal open={formOpen} onOpenChange={(o) => { setFormOpen(o); if (!o) setEditTarget(null); }} opportunity={editTarget} onSave={handleSave} />
-        <OpportunityDetailsModal open={!!viewTarget} onOpenChange={(o) => { if (!o) setViewTarget(null); }} opportunity={viewTarget} onEdit={handleEdit} />
-        <DeleteOpportunityDialog open={!!deleteTarget} onOpenChange={(o) => { if (!o) setDeleteTarget(null); }} opportunity={deleteTarget} onConfirm={confirmDelete} />
+          {/* Table */}
+          <OpportunitiesTable opportunities={filtered} onView={handleView} onEdit={handleEdit} onDelete={handleDelete} />
+        </main>
       </div>
-    </TooltipProvider>
-  );
-};
 
-function EmptyState() {
-  return (
-    <div className="bg-card/70 backdrop-blur-xl rounded-2xl border border-border/50 p-16 text-center animate-fade-in-up shadow-sm" style={{ animationDelay: "400ms" }}>
-      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center mx-auto mb-5">
-        <Sparkles className="w-7 h-7 text-primary" />
-      </div>
-      <h3 className="text-lg font-semibold text-foreground mb-2">No opportunities yet</h3>
-      <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6">
-        Get started by creating your first funding opportunity for students.
-      </p>
-      <Button asChild className="rounded-xl gap-2 shadow-lg shadow-primary/15">
-        <Link to="/opportunities/create">
-          <Plus className="w-4 h-4" />
-          Create your first opportunity
-        </Link>
-      </Button>
+      <OpportunityFormModal open={formOpen} onOpenChange={(o) => { setFormOpen(o); if (!o) setEditTarget(null); }} opportunity={editTarget} onSave={handleSave} />
+      <OpportunityDetailsModal open={!!viewTarget} onOpenChange={(o) => { if (!o) setViewTarget(null); }} opportunity={viewTarget} onEdit={handleEdit} />
+      <DeleteOpportunityDialog open={!!deleteTarget} onOpenChange={(o) => { if (!o) setDeleteTarget(null); }} opportunity={deleteTarget} onConfirm={confirmDelete} />
     </div>
   );
-}
+};
 
 function parseAmount(amount: string): number {
   return parseInt(amount.replace(/[^0-9]/g, ""), 10) || 0;
