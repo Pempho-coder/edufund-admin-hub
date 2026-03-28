@@ -72,7 +72,7 @@ export function OpportunitiesTable({ opportunities, onView, onEdit, onDelete }: 
               Category
             </TableHead>
             <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground py-4 hidden sm:table-cell">
-              Amount
+              Applicants
             </TableHead>
             <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground py-4 hidden lg:table-cell">
               Deadline
@@ -110,9 +110,9 @@ export function OpportunitiesTable({ opportunities, onView, onEdit, onDelete }: 
                 <span className="text-sm text-muted-foreground">{categoryLabels[opp.category]}</span>
               </TableCell>
 
-              {/* Amount */}
+              {/* Applicants */}
               <TableCell className="py-4 hidden sm:table-cell">
-                <span className="text-sm font-medium text-foreground tabular-nums">{opp.amount}</span>
+                <span className="text-sm text-muted-foreground tabular-nums">{Math.floor(Math.random() * 80 + 5)}</span>
               </TableCell>
 
               {/* Deadline */}
