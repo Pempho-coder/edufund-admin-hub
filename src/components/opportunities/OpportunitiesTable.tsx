@@ -72,7 +72,7 @@ export function OpportunitiesTable({ opportunities, onView, onEdit, onDelete }: 
               Category
             </TableHead>
             <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground py-4 hidden sm:table-cell">
-              Amount
+              Applicants
             </TableHead>
             <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground py-4 hidden lg:table-cell">
               Deadline
