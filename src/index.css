@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Poppins is loaded via index.html for better performance */
 
 @layer base {
   :root {
@@ -95,6 +95,6 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Poppins', 'Inter', system-ui, sans-serif;
   }
 }

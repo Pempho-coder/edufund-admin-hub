@@ -3,30 +3,24 @@ import {
   TrendingUp,
   FileText,
   Users,
-  FolderOpen,
-  CalendarClock,
-  Bell,
-  BarChart3,
-  Settings,
+  BarChart2,
+  Settings2,
   LogOut,
   GraduationCap,
   Sparkles,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
-const mainItems = [
+const mainItems: { title: string; url: string; icon: typeof LayoutDashboard; badge?: number }[] = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Opportunities", url: "/opportunities", icon: TrendingUp },
-  { title: "Applications", url: "/applications", icon: FileText },
-  { title: "Students", url: "/students", icon: Users },
-  { title: "Documents", url: "/documents", icon: FolderOpen },
-  { title: "Deadlines", url: "/deadlines", icon: CalendarClock },
-  { title: "Notifications", url: "/notifications", icon: Bell, badge: 5 },
-  { title: "Reports", url: "/reports", icon: BarChart3 },
+  { title: "Applications", url: "/admin/applications", icon: FileText },
+  { title: "Students", url: "/admin/students", icon: Users },
+  { title: "Reports", url: "/admin/reports", icon: BarChart2 },
 ];
 
 const bottomItems = [
-  { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Settings", url: "/admin/settings", icon: Settings2 },
 ];
 
 export function AdminSidebar() {
