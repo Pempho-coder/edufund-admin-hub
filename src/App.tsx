@@ -6,6 +6,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import Opportunities from "./pages/Opportunities.tsx";
 import CreateOpportunity from "./pages/CreateOpportunity.tsx";
+import AdminApplications from "./pages/admin/AdminApplications.tsx";
+import AdminApplicationDetail from "./pages/admin/AdminApplicationDetail.tsx";
+import AdminStudents from "./pages/admin/AdminStudents.tsx";
+import AdminStudentDetail from "./pages/admin/AdminStudentDetail.tsx";
+import AdminReports from "./pages/admin/AdminReports.tsx";
+import AdminSettings from "./pages/admin/AdminSettings.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -20,6 +26,12 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/opportunities" element={<Opportunities />} />
           <Route path="/opportunities/create" element={<CreateOpportunity />} />
+          <Route path="/admin/applications" element={<AdminApplications />} />
+          <Route path="/admin/applications/:id" element={<AdminApplicationDetail />} />
+          <Route path="/admin/students" element={<AdminStudents />} />
+          <Route path="/admin/students/:id" element={<AdminStudentDetail />} />
+          <Route path="/admin/reports" element={<AdminReports />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
