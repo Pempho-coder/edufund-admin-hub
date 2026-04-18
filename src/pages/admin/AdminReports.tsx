@@ -11,7 +11,7 @@ import {
 } from "@/data/adminMockData";
 import { useState } from "react";
 import {
-  ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip,
   AreaChart, Area, BarChart, Bar, LabelList,
 } from "recharts";
 import { cn } from "@/lib/utils";
