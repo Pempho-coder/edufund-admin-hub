@@ -8,15 +8,17 @@ import {
   LogOut,
   GraduationCap,
   Sparkles,
+  Send,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
-const mainItems: { title: string; url: string; icon: typeof LayoutDashboard; badge?: number }[] = [
+const mainItems: { title: string; url: string; icon: typeof LayoutDashboard; badge?: number; badgeTone?: "amber" | "red" }[] = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Opportunities", url: "/opportunities", icon: TrendingUp },
   { title: "Applications", url: "/admin/applications", icon: FileText },
-  { title: "Students", url: "/admin/students", icon: Users },
+  { title: "Review & Forward", url: "/admin/review", icon: Send, badge: 3, badgeTone: "amber" },
   { title: "Reports", url: "/admin/reports", icon: BarChart2 },
+  { title: "Students", url: "/admin/students", icon: Users },
 ];
 
 const bottomItems = [
@@ -58,7 +60,7 @@ export function AdminSidebar() {
             <item.icon className="w-[18px] h-[18px] transition-transform duration-200 group-hover:scale-110" />
             <span className="flex-1">{item.title}</span>
             {item.badge && (
-              <span className="w-5 h-5 rounded-full bg-edu-red text-white text-[10px] font-bold flex items-center justify-center">
+              <span className={`min-w-5 h-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center ${item.badgeTone === "amber" ? "bg-edu-amber-light text-edu-amber" : "bg-edu-red text-white"}`}>
                 {item.badge}
               </span>
             )}

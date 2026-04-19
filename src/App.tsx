@@ -12,6 +12,7 @@ import AdminStudents from "./pages/admin/AdminStudents.tsx";
 import AdminStudentDetail from "./pages/admin/AdminStudentDetail.tsx";
 import AdminReports from "./pages/admin/AdminReports.tsx";
 import AdminSettings from "./pages/admin/AdminSettings.tsx";
+import AdminReview from "./pages/admin/AdminReview.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/admin/students" element={<AdminStudents />} />
           <Route path="/admin/students/:id" element={<AdminStudentDetail />} />
           <Route path="/admin/reports" element={<AdminReports />} />
+          <Route path="/admin/review" element={<AdminReview />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
