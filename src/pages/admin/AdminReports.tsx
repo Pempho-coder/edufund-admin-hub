@@ -2,10 +2,9 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Briefcase, Users, FileText, Send, Target, UserCheck, AlertTriangle, CheckCircle2,
+  AlertTriangle, CheckCircle2, RefreshCw, X,
 } from "lucide-react";
 import {
-  TOTAL_OPPORTUNITIES, TOTAL_STUDENTS, TOTAL_APPLICATIONS, FORWARDED_COUNT,
   applicationsLast30Days, topOpportunities, matchDistribution, facultyCoverage,
   gapInsights, GapInsight,
 } from "@/data/adminMockData";
