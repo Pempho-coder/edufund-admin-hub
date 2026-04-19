@@ -1,4 +1,5 @@
-import { Search, Bell, ChevronDown, Menu, Sun } from "lucide-react";
+import { Search, ChevronDown, Menu, Sun } from "lucide-react";
+import { NotificationsBell } from "./NotificationsBell";
 
 interface AdminTopNavProps {
   onMenuToggle?: () => void;
@@ -29,12 +30,7 @@ export function AdminTopNav({ onMenuToggle }: AdminTopNavProps) {
           <Sun className="w-[18px] h-[18px] text-muted-foreground" />
         </button>
 
-        <button className="relative p-2.5 rounded-xl hover:bg-accent transition-all active:scale-95">
-          <Bell className="w-[18px] h-[18px] text-muted-foreground" />
-          <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-edu-red text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-card">
-            5
-          </span>
-        </button>
+        <NotificationsBell />
 
         <div className="w-px h-8 bg-border mx-1" />
 
