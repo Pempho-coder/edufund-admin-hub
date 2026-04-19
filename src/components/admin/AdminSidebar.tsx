@@ -8,7 +8,7 @@ import {
   LogOut,
   GraduationCap,
   Sparkles,
-  Send,
+  AlertTriangle,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
@@ -16,9 +16,9 @@ const mainItems: { title: string; url: string; icon: typeof LayoutDashboard; bad
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Opportunities", url: "/opportunities", icon: TrendingUp },
   { title: "Applications", url: "/admin/applications", icon: FileText },
-  { title: "Review & Forward", url: "/admin/review", icon: Send, badge: 3, badgeTone: "amber" },
-  { title: "Reports", url: "/admin/reports", icon: BarChart2 },
   { title: "Students", url: "/admin/students", icon: Users },
+  { title: "Reports", url: "/admin/reports", icon: AlertTriangle },
+  { title: "Analytics", url: "/admin/analytics", icon: BarChart2 },
 ];
 
 const bottomItems = [
