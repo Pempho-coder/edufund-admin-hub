@@ -2,10 +2,9 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Briefcase, Users, FileText, Send, Target, UserCheck, AlertTriangle, CheckCircle2,
+  AlertTriangle, CheckCircle2, RefreshCw, X,
 } from "lucide-react";
 import {
-  TOTAL_OPPORTUNITIES, TOTAL_STUDENTS, TOTAL_APPLICATIONS, FORWARDED_COUNT,
   applicationsLast30Days, topOpportunities, matchDistribution, facultyCoverage,
   gapInsights, GapInsight,
 } from "@/data/adminMockData";
@@ -20,13 +19,14 @@ import { toast } from "sonner";
 export default function AdminReports() {
   const [insights, setInsights] = useState<GapInsight[]>(gapInsights);
 
+  const openGaps = insights.length;
+  const allResolved = openGaps === 0;
+
   const summary = [
-    { label: "Total Opportunities", value: TOTAL_OPPORTUNITIES, icon: Briefcase, color: "text-primary", bg: "bg-edu-green-light" },
-    { label: "Total Students", value: TOTAL_STUDENTS, icon: Users, color: "text-edu-blue", bg: "bg-edu-blue-light" },
-    { label: "Total Applications", value: TOTAL_APPLICATIONS, icon: FileText, color: "text-purple-600", bg: "bg-purple-100" },
-    { label: "Forwarded", value: FORWARDED_COUNT, icon: Send, color: "text-primary", bg: "bg-edu-green-light" },
-    { label: "Avg Match Score", value: "71%", icon: Target, color: "text-edu-amber", bg: "bg-edu-amber-light" },
-    { label: "Profile Completion", value: "64%", icon: UserCheck, color: "text-edu-blue", bg: "bg-edu-blue-light" },
+    { label: "Open Gaps", value: String(openGaps), sub: "Require attention", tone: openGaps > 0 ? "text-edu-red" : "text-muted-foreground" },
+    { label: "Students Unmatched", value: "23", sub: "Match zero opportunities", tone: "text-edu-amber" },
+    { label: "Underserved Faculties", value: "2", sub: "Below coverage threshold", tone: "text-edu-amber" },
+    { label: "All Gaps Resolved", value: allResolved ? "Yes" : "No", sub: allResolved ? "Every group served" : "Pending action", tone: allResolved ? "text-primary" : "text-muted-foreground" },
   ];
 
   const resolveInsight = (id: string) => {
@@ -39,25 +39,25 @@ export default function AdminReports() {
       <div className="max-w-[1400px] mx-auto space-y-6 animate-fade-in-up">
         <div className="flex items-start justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Reports &amp; Insights</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Platform performance and funding gap analysis
+            <h1 className="text-[28px] font-bold tracking-tight text-foreground">Reports &amp; Insights</h1>
+            <p className="text-[15px] text-muted-foreground mt-1">
+              Funding gap analysis and platform health
             </p>
           </div>
-          <p className="text-xs text-muted-foreground">Last updated: Today at 00:00</p>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/60 text-[12px] text-muted-foreground">
+            <RefreshCw className="w-3.5 h-3.5" />
+            Last analysed: Today at 00:00
+          </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {/* Summary strip */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {summary.map((s) => (
-            <Card key={s.label} className="p-5 rounded-2xl shadow-sm border-border/60">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{s.label}</p>
-                  <p className="text-2xl font-bold mt-2 tabular-nums">{s.value}</p>
-                </div>
-                <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center", s.bg)}>
-                  <s.icon className={cn("w-4 h-4", s.color)} />
-                </div>
+            <Card key={s.label} className="h-20 px-4 py-3 rounded-xl shadow-sm border-border/60 flex flex-col justify-center">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">{s.label}</p>
+              <div className="flex items-baseline justify-between mt-1 gap-2">
+                <p className={cn("text-2xl font-bold tabular-nums", s.tone)}>{s.value}</p>
+                <p className="text-[11px] text-muted-foreground truncate">{s.sub}</p>
               </div>
             </Card>
           ))}
@@ -65,17 +65,26 @@ export default function AdminReports() {
 
         {/* Gap Detection */}
         <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-edu-amber" />
-              <h2 className="text-xl font-bold">Opportunity Gaps</h2>
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-edu-amber" />
+                <h2 className="text-xl font-bold">Opportunity Gaps</h2>
+              </div>
+              <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+                Student groups currently underserved by available funding. Gaps are
+                re-evaluated each time a new opportunity is added or a student registers.
+              </p>
             </div>
-            <span className="text-xs text-muted-foreground">Auto-detected — updates daily</span>
+            {allResolved ? (
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary">
+                <CheckCircle2 className="w-4 h-4" /> All resolved
+              </span>
+            ) : (
+              <span className="text-xs text-muted-foreground">{openGaps} unresolved gaps</span>
+            )}
           </div>
-          <p className="text-sm text-muted-foreground">
-            Student groups currently underserved by available funding. Resolve gaps by adding targeted opportunities.
-          </p>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {insights.length === 0 ? (
               <Card className="rounded-2xl border-border/60 shadow-sm p-5 bg-edu-green-light/40">
                 <div className="flex items-center gap-3">
@@ -87,21 +96,30 @@ export default function AdminReports() {
               </Card>
             ) : insights.map((i) => {
               const sev = {
-                critical: { border: "border-l-edu-red", pill: "bg-edu-red-light text-edu-red", label: "Critical" },
-                high: { border: "border-l-edu-amber", pill: "bg-edu-amber-light text-edu-amber", label: "High" },
-                medium: { border: "border-l-edu-blue", pill: "bg-edu-blue-light text-edu-blue", label: "Medium" },
+                critical: { border: "border-l-[5px] border-l-edu-red", pill: "bg-edu-red-light text-edu-red", label: "CRITICAL" },
+                high: { border: "border-l-[5px] border-l-edu-amber", pill: "bg-edu-amber-light text-edu-amber", label: "HIGH" },
+                medium: { border: "border-l-[5px] border-l-edu-blue", pill: "bg-edu-blue-light text-edu-blue", label: "MEDIUM" },
               }[i.severity];
               return (
-                <Card key={i.id} className={cn("p-5 rounded-2xl shadow-sm border-border/60 border-l-4", sev.border)}>
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <h3 className="font-semibold text-[15px]">{i.title}</h3>
-                    <span className={cn("text-[11px] font-semibold px-2.5 py-1 rounded-full", sev.pill)}>
+                <Card key={i.id} className={cn("p-5 rounded-2xl shadow-sm border-border/60", sev.border)}>
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <span className={cn("text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-full", sev.pill)}>
                       {sev.label}
                     </span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-muted-foreground">Detected {i.detectedAgo}</span>
+                      <button
+                        onClick={() => resolveInsight(i.id)}
+                        aria-label="Mark resolved"
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-edu-red-light hover:text-edu-red transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
+                  <h3 className="font-semibold text-[15px] mb-2">{i.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{i.description}</p>
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/60">
-                    <span className="text-xs text-muted-foreground">Detected {i.detectedAgo}</span>
+                  <div className="flex items-center justify-end mt-4 pt-3 border-t border-border/60">
                     <Button size="sm" variant="outline" className="rounded-xl" onClick={() => resolveInsight(i.id)}>
                       Mark Resolved
                     </Button>
